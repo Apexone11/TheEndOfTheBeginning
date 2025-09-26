@@ -10,34 +10,102 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 
+/**
+ * MainController class - JavaFX Controller for "The End The Beginning" game.
+ * 
+ * This class serves as the primary game controller, managing the user interface
+ * and game logic for the JavaFX version of the dungeon escape game. It handles
+ * all user interactions, game state management, and UI updates.
+ * 
+ * DESIGN PATTERNS USED:
+ * - MVC (Model-View-Controller): Separates UI logic from game logic
+ * - State Machine: Uses expectedInputType to manage different input contexts
+ * - Event-Driven: Responds to user actions through JavaFX event handlers
+ * 
+ * CORE RESPONSIBILITIES:
+ * - Managing JavaFX UI components and user interactions
+ * - Processing player input and game commands
+ * - Maintaining game state through GameState inner class
+ * - Coordinating combat encounters and room exploration
+ * - Displaying game text and updating player statistics
+ * 
+ * @author Abdul Fornah
+ * @version 1.0
+ */
 public class MainController implements Initializable {
     
-    @FXML private TextArea gameTextArea;
-    @FXML private TextField inputField;
-    @FXML private Button submitButton;
-    @FXML private Button startButton;
-    @FXML private Button statsButton;
-    @FXML private Button resetButton;
-    @FXML private Label healthLabel;
-    @FXML private Label defenseLabel;
-    @FXML private Label attackLabel;
-    @FXML private Label levelLabel;
+    // ===== JAVAFX UI COMPONENT REFERENCES =====
+    // These @FXML annotations link to components defined in game.fxml
     
-    // Game state variables
+    @FXML private TextArea gameTextArea;    // Main game text display area
+    @FXML private TextField inputField;     // Player text input field
+    @FXML private Button submitButton;      // Submit player input
+    @FXML private Button startButton;       // Start new game
+    @FXML private Button statsButton;       // Display player statistics
+    @FXML private Button resetButton;       // Reset/restart game
+    @FXML private Label healthLabel;        // Player health display
+    @FXML private Label defenseLabel;       // Player defense display
+    @FXML private Label attackLabel;        // Player attack display
+    @FXML private Label levelLabel;         // Player level display
+    
+    // ===== GAME STATE MANAGEMENT VARIABLES =====
+    
+    /**
+     * Core game state object - manages all player stats, progression, and game data
+     * Implemented as inner class to keep game logic encapsulated
+     */
     private GameState gameState;
+    
+    /**
+     * Flag indicating whether a game session is currently active
+     * Used to prevent multiple game instances and manage UI state
+     */
     private boolean isGameRunning = false;
+    
+    /**
+     * Input management flag - indicates if the game is waiting for player input
+     * Prevents input processing when game is in narrative/display mode
+     */
     private boolean waitingForInput = false;
+    
+    /**
+     * State machine controller - defines what type of input is expected
+     * Valid values: "START_CONFIRMATION", "DIFFICULTY", "PLAYER_NAME", 
+     *               "ROOM_ACTION", "MONSTER_ACTION", "COMBAT_ACTION"
+     * This enables context-sensitive input processing
+     */
     private String expectedInputType = "";
     
+    /**
+     * JavaFX initialization method - called automatically when the FXML is loaded.
+     * Sets up the initial game state and UI configuration.
+     * 
+     * INITIALIZATION PROCESS:
+     * 1. Create new GameState instance with default values
+     * 2. Display welcome message to player
+     * 3. Configure Enter key as input submission shortcut
+     * 
+     * @param location URL location (unused but required by Initializable interface)
+     * @param resources ResourceBundle (unused but required by Initializable interface)
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Initialize game state with default player stats
         gameState = new GameState();
         displayWelcomeMessage();
         
-        // Enable Enter key to submit input
+        // USER EXPERIENCE ENHANCEMENT: Allow Enter key to submit input
+        // This provides a more natural interaction than requiring mouse clicks
         inputField.setOnAction(event -> handleSubmit());
     }
     
+    /**
+     * Displays the initial welcome message and instructions to the player.
+     * This method sets up the game's first impression and guides user interaction.
+     * 
+     * UI DESIGN NOTE: Uses clear, friendly language to welcome new players
+     * and provide obvious next steps for starting the game.
+     */
     private void displayWelcomeMessage() {
         appendToGameText("Welcome to DUNGEON ESCAPE (JavaFX Edition)\n\n");
         appendToGameText("Click 'Start Game' to begin your adventure!\n");
@@ -82,17 +150,37 @@ public class MainController implements Initializable {
         updateUI();
     }
     
+    /**
+     * Core input processing method - handles all player text input based on current game state.
+     * 
+     * This method implements a state machine pattern where the expectedInputType determines
+     * how player input should be interpreted and processed. This allows the same input field
+     * to handle different types of data (yes/no, numbers, names, etc.) contextually.
+     * 
+     * STATE MACHINE DESIGN:
+     * - Each game state expects specific input types
+     * - Invalid input triggers re-prompting without advancing game state
+     * - Successful input processing advances to next appropriate game state
+     * - Error handling prevents game from breaking on unexpected input
+     * 
+     * @param input The player's text input, trimmed of whitespace
+     */
     private void processInput(String input) {
+        // Clear waiting flag since we're now processing input
         waitingForInput = false;
         
+        // STATE MACHINE: Process input based on current expected input type
         switch (expectedInputType) {
             case "START_CONFIRMATION":
+                // GAME START DECISION: Player chooses whether to begin playing
                 if (input.equalsIgnoreCase("YES")) {
                     askForDifficulty();
                 } else if (input.equalsIgnoreCase("NO")) {
+                    // Player declined to play - show credits and end session
                     showCredits();
                     isGameRunning = false;
                 } else {
+                    // INVALID INPUT: Re-prompt without changing game state
                     appendToGameText("Please enter YES or NO: ");
                     waitingForInput = true;
                 }
@@ -430,19 +518,46 @@ public class MainController implements Initializable {
         gameTextArea.appendText(text);
     }
     
-    // Inner class to manage game state
+    /**
+     * GameState inner class - Encapsulates all game data and logic.
+     * 
+     * This class serves as the "Model" in the MVC pattern, containing all game state
+     * variables and methods for manipulating that state. It's implemented as a static
+     * inner class to keep game logic closely associated with the controller while
+     * maintaining clear separation of concerns.
+     * 
+     * DESIGN BENEFITS:
+     * - Encapsulation: All game data in one place
+     * - Type Safety: Methods provide controlled access to game state
+     * - Maintainability: Easy to add new stats or modify existing ones
+     * - Testing: Can be tested independently of UI components
+     * 
+     * GAME STATE CATEGORIES:
+     * - Player Stats: health, attack, defense, level progression
+     * - World State: current dungeon level, room, exploration progress
+     * - Combat State: monster health, current encounter type
+     * - Meta State: player name, difficulty, session tracking
+     */
     private static class GameState {
-        private int health = 100;
-        private int defense = 1;
-        private int attack = 1;
-        private int level = 1;
-        private int room = 0;
-        private int roomSearches = 0;
-        private int playerLevel = 1;
-        private int difficulty = 1;
-        private String playerName = "";
-        private int monsterHealth = 0;
-        private int currentEvent = 0;
+        
+        // ===== PLAYER CORE STATISTICS =====
+        private int health = 100;           // Current player health points
+        private int defense = 1;            // Damage absorption capability  
+        private int attack = 1;             // Base damage output potential
+        private int level = 1;              // Current dungeon level (1-10 for escape)
+        
+        // ===== WORLD EXPLORATION STATE =====
+        private int room = 0;               // Current room number within level
+        private int roomSearches = 0;       // Times player searched current room
+        private int playerLevel = 1;        // Player's character level (affects combat)
+        
+        // ===== GAME CONFIGURATION =====
+        private int difficulty = 1;         // Chosen difficulty (1=Easy, 2=Medium, 3=Hard, 4=Death)
+        private String playerName = "";     // Player's chosen character name
+        
+        // ===== ACTIVE ENCOUNTER STATE =====
+        private int monsterHealth = 0;      // Current monster's remaining health
+        private int currentEvent = 0;       // Type of current room event (0=health, 1=defense, 2=attack, 3=monster)
         
         public void resetGame() {
             health = 100;
