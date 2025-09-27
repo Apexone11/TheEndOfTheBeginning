@@ -1,4 +1,4 @@
-# The End The Beginning - Dungeon Escape Game 🏰Dungeon Escape (JavaFX)
+# The End The Beginning - Dungeon Escape Game  (JavaFX)
 
 📖 Overview
 
