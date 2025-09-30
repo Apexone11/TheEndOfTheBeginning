@@ -1,12 +1,13 @@
 /* 
- * GAME STYLESHEET - The End The Beginning: Dungeon Escape
+ * GAME STYLESHEET - The End The Beginning: Dungeon Escape v3.0
  * A dark, atmospheric theme perfect for dungeon exploration
+ * Enhanced with improved animations and visual feedback
  * Author: Abdul Fornah
  */
 
 /* ===== ROOT VARIABLES ===== */
 .root {
-    /* Color Palette */
+    /* Color Palette - Enhanced */
     -fx-dark-bg: #1a1a1a;
     -fx-darker-bg: #0d0d0d;
     -fx-accent: #b8860b;
@@ -16,6 +17,9 @@
     -fx-text-primary: #f0f0f0;
     -fx-text-secondary: #cccccc;
     -fx-text-muted: #888888;
+    -fx-glow-gold: rgba(218, 165, 32, 0.6);
+    -fx-glow-red: rgba(220, 20, 60, 0.6);
+    -fx-glow-green: rgba(50, 205, 50, 0.6);
     
     /* Spacing */
     -fx-spacing-small: 5px;
@@ -35,9 +39,9 @@
     -fx-font-family: -fx-font-family-body;
 }
 
-/* Main VBox container */
+/* Main VBox container - Enhanced gradient */
 VBox {
-    -fx-background-color: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+    -fx-background-color: linear-gradient(to bottom, #1a1a1a 0%, #0d0d0d 50%, #1a1a1a 100%);
     -fx-padding: 20px;
     -fx-spacing: -fx-spacing-large;
 }
@@ -47,7 +51,7 @@ VBox {
     -fx-font-family: -fx-font-family-title;
     -fx-font-size: 28px;
     -fx-text-fill: linear-gradient(to right, #b8860b, #daa520);
-    -fx-effect: dropshadow(gaussian, rgba(184, 134, 11, 0.8), 10, 0.5, 0, 2);
+    -fx-effect: dropshadow(gaussian, -fx-glow-gold, 12, 0.6, 0, 2);
     -fx-alignment: center;
     -fx-padding: 0 0 10px 0;
 }

@@ -75,7 +75,7 @@ public class MainControllerNew implements Initializable {
     
     private void displayWelcomeMessage() {
         appendToGameText("═══════════════════════════════════════════════════════════\n");
-        appendToGameText("    ⚔️  THE END THE BEGINNING - DUNGEON ESCAPE  ⚔️\n");
+        appendToGameText("    ⚔️  THE END THE BEGINNING - DUNGEON ESCAPE v3.0  ⚔️\n");
         appendToGameText("═══════════════════════════════════════════════════════════\n\n");
         
         appendToGameText("Welcome, brave soul, to the depths of mystery and danger...\n\n");
@@ -88,11 +88,13 @@ public class MainControllerNew implements Initializable {
         appendToGameText("• Choose your character class (Warrior, Mage, Rogue)\n");
         appendToGameText("• Collect powerful items and equipment\n");
         appendToGameText("• Face challenging monsters with unique abilities\n");
-        appendToGameText("• Progress through 10 levels to escape\n");
+        appendToGameText("• Progress through 50 levels to escape\n");
+        appendToGameText("• Save and load your progress\n");
         appendToGameText("• Unlock achievements and track your progress\n\n");
         
         appendToGameText("🎮 Click 'Start New Game' when you're ready to begin!\n");
-        appendToGameText("📋 Use 'View Stats' anytime to check your progress\n\n");
+        appendToGameText("📋 Use 'View Stats' anytime to check your progress\n");
+        appendToGameText("💾 Your progress is automatically saved!\n\n");
     }
     
     @FXML
@@ -136,6 +138,17 @@ public class MainControllerNew implements Initializable {
         gameTextArea.clear();
         
         appendToGameText("═══ BEGINNING YOUR ADVENTURE ═══\n\n");
+        
+        // Check for existing save
+        if (SaveManager.saveExists()) {
+            appendToGameText("💾 A saved game was found!\n");
+            appendToGameText("   Do you want to LOAD it or start a NEW game?\n");
+            appendToGameText("   Type LOAD or NEW: ");
+            waitingForInput = true;
+            expectedInputType = "LOAD_OR_NEW";
+            return;
+        }
+        
         appendToGameText("🏰 The ancient dungeon looms before you...\n");
         appendToGameText("🕰️ Your fate awaits within these cursed halls.\n\n");
         
@@ -149,6 +162,21 @@ public class MainControllerNew implements Initializable {
         waitingForInput = false;
         
         switch (expectedInputType) {
+            case "LOAD_OR_NEW" -> {
+                if (input.equalsIgnoreCase("LOAD") || input.equalsIgnoreCase("L")) {
+                    loadSavedGame();
+                } else if (input.equalsIgnoreCase("NEW") || input.equalsIgnoreCase("N")) {
+                    appendToGameText("\n🗑️ Starting fresh adventure (old save will be overwritten)...\n\n");
+                    appendToGameText("🏰 The ancient dungeon looms before you...\n");
+                    appendToGameText("🕰️ Your fate awaits within these cursed halls.\n\n");
+                    appendToGameText("🤔 Do you dare to enter the depths? (YES/NO): ");
+                    waitingForInput = true;
+                    expectedInputType = "START_CONFIRMATION";
+                } else {
+                    appendToGameText("Please enter LOAD or NEW: ");
+                    waitingForInput = true;
+                }
+            }
             case "START_CONFIRMATION" -> {
                 if (input.equalsIgnoreCase("YES") || input.equalsIgnoreCase("Y")) {
                     askForPlayerClass();
@@ -270,6 +298,82 @@ public class MainControllerNew implements Initializable {
         continueGameplay();
     }
     
+    /**
+     * Loads a saved game from disk and restores player state.
+     */
+    private void loadSavedGame() {
+        SaveManager.SaveData saveData = SaveManager.loadGame();
+        
+        if (saveData == null) {
+            appendToGameText("\n❌ Error loading save game. Starting new game...\n\n");
+            appendToGameText("🤔 Do you dare to enter the depths? (YES/NO): ");
+            waitingForInput = true;
+            expectedInputType = "START_CONFIRMATION";
+            return;
+        }
+        
+        try {
+            // Restore player class
+            main.model.player.PlayerClass loadedClass = 
+                main.model.player.PlayerClass.valueOf(saveData.playerClass);
+            player = new player(saveData.name, loadedClass);
+            
+            // Restore player stats
+            player.restoreSaveData(
+                saveData.level,
+                saveData.experience,
+                saveData.health,
+                saveData.maxHealth,
+                saveData.attack,
+                saveData.defense,
+                saveData.magic,
+                saveData.roomsExplored,
+                saveData.monstersDefeated
+            );
+            
+            player.setDungeonLevel(saveData.dungeonLevel);
+            
+            // Sync to game state
+            gameState.resetGame();
+            gameState.setLevel(saveData.dungeonLevel);
+            syncPlayerToGameState();
+            
+            appendToGameText("\n✅ Game loaded successfully!\n");
+            appendToGameText("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
+            appendToGameText("📜 Welcome back, " + player.getName() + "!\n");
+            appendToGameText("🏰 You were at floor " + saveData.dungeonLevel + "\n");
+            appendToGameText("⭐ Character Level: " + saveData.level + "\n");
+            appendToGameText("❤️  Health: " + saveData.health + "/" + saveData.maxHealth + "\n");
+            appendToGameText("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n");
+            
+            updateUI();
+            continueGameplay();
+            
+        } catch (Exception e) {
+            appendToGameText("\n❌ Error restoring save data: " + e.getMessage() + "\n");
+            appendToGameText("Starting new game...\n\n");
+            player = new player();
+            gameState.resetGame();
+            appendToGameText("🤔 Do you dare to enter the depths? (YES/NO): ");
+            waitingForInput = true;
+            expectedInputType = "START_CONFIRMATION";
+        }
+    }
+    
+    /**
+     * Auto-saves the current game state.
+     */
+    private void autoSave() {
+        if (player != null && isGameRunning) {
+            boolean success = SaveManager.saveGame(player, gameState.getLevel());
+            if (success) {
+                // Optionally show save indicator (commented out to avoid spam)
+                // appendToGameText("💾 Game auto-saved.\n");
+            }
+        }
+    }
+    
+    
     private void syncPlayerToGameState() {
         gameState.setHealth(player.getHealth());
         gameState.setAttack(player.getAttack());
@@ -278,9 +382,10 @@ public class MainControllerNew implements Initializable {
     }
     
     private void continueGameplay() {
-        if (gameState.getLevel() >= 10) {
+        if (gameState.getLevel() >= 50) {
             appendToGameText("\n🎉 VICTORY! You have escaped the dungeon!\n");
-            appendToGameText("🏆 Congratulations, " + player.getName() + "! You are truly a hero!\n\n");
+            appendToGameText("🏆 Congratulations, " + player.getName() + "! You are truly a hero!\n");
+            appendToGameText("⭐ You conquered all 50 floors! A legendary feat!\n\n");
             showCredits();
             isGameRunning = false;
             return;
@@ -296,6 +401,9 @@ public class MainControllerNew implements Initializable {
         
         appendToGameText("\n📍 Floor " + gameState.getLevel() + " :\n");
         appendToGameText("🚪 Room " + gameState.getRoom() + " :\n\n");
+        
+        // Auto-save progress
+        autoSave();
         
         int gameEvent = (int) (Math.random() * 4);
         

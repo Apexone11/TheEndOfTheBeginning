@@ -421,6 +421,9 @@ public class player {
         if (level >= 10) achievements.add("Experienced Explorer");
         if (level >= 15) achievements.add("Dungeon Master");
         if (level >= 20) achievements.add("Legendary Hero");
+        if (level >= 30) achievements.add("Elite Warrior");
+        if (level >= 40) achievements.add("Dungeon Conqueror");
+        if (level >= 50) achievements.add("Supreme Champion");
     }
     
     /**
@@ -552,6 +555,49 @@ public class player {
     public int getPotionsUsed() { return potionsUsed; }
     public long getTotalPlayTime() { return totalPlayTime; }
     public void addPlayTime(long milliseconds) { this.totalPlayTime += milliseconds; }
+    
+    /**
+     * Restores player state from loaded save data.
+     * Used by SaveManager to load saved games.
+     * 
+     * @param level Player level
+     * @param exp Current experience
+     * @param health Current health
+     * @param maxHp Maximum health
+     * @param atk Attack stat
+     * @param def Defense stat
+     * @param mag Magic stat
+     * @param roomsExp Rooms explored count
+     * @param monstersKilled Monsters defeated count
+     */
+    public void restoreSaveData(int level, int exp, int health, int maxHp, 
+                                int atk, int def, int mag, 
+                                int roomsExp, int monstersKilled) {
+        this.level = level;
+        this.experience = exp;
+        this.currentHealth = health;
+        this.maxHealth = maxHp;
+        this.baseAttack = atk;
+        this.baseDefense = def;
+        this.baseMagic = mag;
+        this.roomsExplored = roomsExp;
+        this.monstersDefeated = monstersKilled;
+        
+        // Recalculate experience to next level
+        this.experienceToNextLevel = (int) (100 * Math.pow(1.2, level - 1));
+        
+        // Recheck achievements
+        checkLevelAchievements();
+        checkExplorationAchievements();
+        checkCombatAchievements();
+    }
+    
+    /**
+     * Gets the Magic power stat for compatibility.
+     */
+    public int getMagic() {
+        return getMagicPower();
+    }
     
     /**
      * Gets the player's health as a percentage.
