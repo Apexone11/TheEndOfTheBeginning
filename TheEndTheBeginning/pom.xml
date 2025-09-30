@@ -5,8 +5,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>gameproject</groupId>
-    <artifactId>theendthebeginnig</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>theendthebeginning</artifactId>
+    <version>3.0.0</version>
+    <name>The End The Beginning - Dungeon Escape</name>
+    <description>An immersive 50-level dungeon escape game with JavaFX</description>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -48,6 +50,20 @@
                 <version>3.10.1</version>
                 <configuration>
                     <release>17</release>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>gameproject.TheEndTheBeginning</mainClass>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>
