@@ -45,13 +45,30 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 - JavaFX 20 (included via Maven)
 - 512MB RAM minimum
 
-### Installation
+### Quick Start
 
+#### Option 1: Run with Maven (Recommended)
 ```bash
 git clone https://github.com/Apexone11/TheEndOfTheBeginning.git
 cd TheEndOfTheBeginning/TheEndTheBeginning
 mvn clean compile
 mvn javafx:run
+```
+
+#### Option 2: Windows Executable (if available)
+1. Download `TheEndTheBeginning.exe` from releases
+2. Double-click to run - no installation needed!
+
+### Building from Source
+```bash
+# Compile the project
+mvn clean compile
+
+# Run the game
+mvn javafx:run
+
+# Package as JAR
+mvn clean package
 ```
 
 ---
@@ -70,8 +87,8 @@ Your progress is automatically saved as you play.
 ## Documentation
 
 - [CHANGELOG.md](CHANGELOG.md) - Version history and updates
-- [BUGS.md](BUGS.md) - Known issues and planned improvements
-- [TODO.md](TODO.md) - Feature roadmap
+- [RELEASE_NOTES.md](RELEASE_NOTES.md) - Detailed release information
+- [TODO.md](TODO.md) - Tasks, bugs, and feature roadmap
 
 ---
 
