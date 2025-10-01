@@ -9,20 +9,34 @@ TheEndOfTheBeginning/
 ├── .git/                       # Git version control
 ├── .github/                    # GitHub configuration
 │   └── ISSUE_TEMPLATE/         # Issue and feature request templates
-├── .gitignore                  # Git ignore rules
+├── .gitignore                  # Git ignore rules (enhanced)
 ├── CHANGELOG.md                # Version history and changes
+├── CODE_OF_CONDUCT.md          # Community guidelines
+├── SECURITY.md                 # Security policy and reporting
+├── LICENSE                     # Project license
 ├── README.md                   # Main project documentation
 ├── RELEASE_NOTES.md            # Detailed release notes with template
 ├── TODO.md                     # Task tracking, bugs, and roadmap
+├── PROJECT_STRUCTURE.md        # This file - project structure overview
+├── FXGL_INTEGRATION.md         # FXGL game library integration guide
+├── GAME_ENGINES.md             # Game engine evaluation and decisions
 └── TheEndTheBeginning/         # Main application directory
-    ├── Launch-Game.bat         # Windows quick launch script
-    ├── pom.xml                 # Maven configuration
-    ├── run-game.bat           # Windows run script
+    ├── Launch-Game.bat         # Windows quick launch script (portable)
+    ├── pom.xml                 # Maven configuration (with FXGL)
+    ├── run-game.bat           # Windows run script (portable)
     ├── src/                   # Source code
     │   └── main/
     │       ├── java/          # Java source files
     │       │   ├── gameproject/
+    │       │   │   ├── package-info.java  # Package documentation
+    │       │   │   ├── TheEndTheBeginning.java
+    │       │   │   ├── MainControllerNew.java
+    │       │   │   ├── SaveManager.java
+    │       │   │   └── Monster.java
     │       │   └── main/model/
+    │       │       ├── package-info.java  # Package documentation
+    │       │       ├── player.java
+    │       │       └── Item.java
     │       └── resources/     # Game resources
     │           ├── game.fxml  # UI layout
     │           ├── game-style.css
@@ -37,11 +51,22 @@ TheEndOfTheBeginning/
 - **CHANGELOG.md** - Chronological list of changes between versions
 - **RELEASE_NOTES.md** - Detailed release information with template for future updates
 - **TODO.md** - Comprehensive task tracking with bugs, features, and priorities
+- **PROJECT_STRUCTURE.md** - Project structure and organization
+
+### Community & Policy
+- **CODE_OF_CONDUCT.md** - Community guidelines and enforcement
+- **SECURITY.md** - Security policy, vulnerability reporting, supported versions
+- **LICENSE** - Project license
+
+### Technical Documentation
+- **FXGL_INTEGRATION.md** - Guide for FXGL game library integration
+- **GAME_ENGINES.md** - Game engine evaluation and integration decisions
 
 ### Development Files
-- **.gitignore** - Version control exclusions
+- **.gitignore** - Version control exclusions (enhanced)
 - **.github/ISSUE_TEMPLATE/** - GitHub issue and feature request templates
-- **pom.xml** - Maven build configuration
+- **pom.xml** - Maven build configuration (with FXGL)
+- **package-info.java** files - Java package documentation
 
 ## 🎯 Key Improvements Made
 

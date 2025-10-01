@@ -1,5 +1,5 @@
 @echo off
-cd /d "c:\Users\abdul\OneDrive\Desktop\programming Project\TheEndOfTheBeginning\TheEndTheBeginning"
+cd /d "%~dp0"
 echo Starting The End The Beginning v3.0...
 mvn javafx:run
 pause

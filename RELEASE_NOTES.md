@@ -29,6 +29,59 @@ When creating a new version, add the new release information at the top of this 
 
 ---
 
+## Version 3.0.1 - Infrastructure & Future-Ready Update
+
+**Release Date:** October 2025
+
+### 🎉 Overview
+
+Version 3.0.1 focuses on infrastructure improvements, future-ready enhancements, and privacy updates. This release prepares the project for advanced GUI features and ensures the game can be easily shared and built by anyone.
+
+### 🌟 New Features
+
+- ✅ **FXGL Integration**: Added FXGL game development framework for future GUI enhancements
+- ✅ **Package Documentation**: Added `package-info.java` files for better code documentation and GitHub visibility
+- ✅ **Portable Launch Scripts**: Fixed batch files to work from any directory location
+- ✅ **Enhanced Security Policy**: Updated with actual version support and clear vulnerability reporting
+
+### 🐛 Bug Fixes
+
+- ✅ **Hardcoded Paths**: Removed absolute paths from `Launch-Game.bat` and `run-game.bat`
+- ✅ **Launch Scripts**: Now use relative paths (`%~dp0`) so they work from any download location
+
+### 🔧 Technical Changes
+
+- ✅ **Dependencies**: Added FXGL 17.3 for future game engine features
+- ✅ **Code Documentation**: Java packages now properly documented for GitHub
+- ✅ **Privacy Updates**: Removed direct email addresses from public documentation
+- ✅ **.gitignore**: Enhanced to exclude more build artifacts and temporary files
+- ✅ **CODE_OF_CONDUCT.md**: Customized for this project with privacy-conscious contact methods
+- ✅ **SECURITY.md**: Updated with accurate version info and reporting procedures
+
+### 📦 Infrastructure
+
+**Added Files:**
+- `src/main/java/gameproject/package-info.java`
+- `src/main/java/main/model/package-info.java`
+
+**Modified Files:**
+- `pom.xml` - Added FXGL dependency
+- `.gitignore` - Enhanced exclusions
+- `CODE_OF_CONDUCT.md` - Customized and privacy-focused
+- `SECURITY.md` - Project-specific security policy
+- `Launch-Game.bat` - Relative paths
+- `run-game.bat` - Relative paths
+
+### 🎯 Future Ready
+
+This release lays the groundwork for:
+- Advanced graphics and animations using FXGL
+- Better code organization and documentation
+- Easier collaboration and contribution
+- Professional open-source project structure
+
+---
+
 ## Version 3.0.0 - Extended Edition
 
 **Release Date:** September 30, 2024
@@ -245,23 +298,27 @@ See [BUGS.md](BUGS.md) for complete list.
 ## 🗺️ Roadmap
 
 ### Version 3.1 (Next Release)
+- FXGL integration for enhanced graphics and animations
 - Manual save slots (multiple saves)
 - Boss monsters at levels 10, 25, 50
 - More monster varieties for late game
 - Game icon image file
 - Sound effects
+- Improved GUI components using FXGL framework
 
 ### Version 3.2
 - Background music
 - Tutorial system
 - Settings menu
 - Keyboard shortcuts
+- Advanced particle effects
 
 ### Version 4.0 (Future)
 - Multiplayer support
 - Procedural dungeons
 - Crafting system
 - New character classes
+- Full FXGL game engine integration
 
 ---
 
