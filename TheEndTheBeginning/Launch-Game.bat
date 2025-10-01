@@ -10,7 +10,7 @@ echo Starting game using Maven JavaFX plugin...
 echo This may take a moment to initialize...
 echo.
 
-cd /d "c:\Users\abdul\OneDrive\Desktop\programming Project\TheEndOfTheBeginning\TheEndTheBeginning"
+cd /d "%~dp0"
 
 mvn javafx:run
 

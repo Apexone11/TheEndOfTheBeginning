@@ -1,5 +1,9 @@
 # Contributor Covenant Code of Conduct
 
+## The End The Beginning - Dungeon Escape Game
+
+This Code of Conduct applies to all contributors and community members of **The End The Beginning** project.
+
 ## Our Pledge
 
 We as members, contributors, and leaders pledge to make participation in our
@@ -59,8 +63,10 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at
-Abdulrfornah@gmail.com.
+reported to the project maintainers through:
+- **GitHub Issues**: [Report an issue](https://github.com/Apexone11/TheEndOfTheBeginning/issues)
+- **Email**: Contact the maintainer (see profile for contact details)
+
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
