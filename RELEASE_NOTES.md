@@ -6,28 +6,6 @@ This file tracks all releases and updates for **The End The Beginning - Dungeon 
 
 When creating a new version, add the new release information at the top of this file using this template:
 
-```markdown
-## Version X.Y.Z - [Release Name]
-
-**Release Date:** [Date]
-
-### 🎉 Overview
-[Brief overview of the release]
-
-### 🌟 New Features
-- Feature 1
-- Feature 2
-
-### 🐛 Bug Fixes
-- Bug fix 1
-- Bug fix 2
-
-### 🔧 Technical Changes
-- Technical change 1
-- Technical change 2
-```
-
----
 
 ## Version 3.0.1 - Infrastructure & Future-Ready Update
 
