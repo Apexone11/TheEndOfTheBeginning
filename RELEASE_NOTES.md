@@ -2,10 +2,6 @@
 
 This file tracks all releases and updates for **The End The Beginning - Dungeon Escape Game**.
 
-## How to Add New Release Notes
-
-When creating a new version, add the new release information at the top of this file using this template:
-
 
 ## Version 3.0.1 - Infrastructure & Future-Ready Update
 
