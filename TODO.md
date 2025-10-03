@@ -23,19 +23,7 @@ This file tracks all tasks, bugs, and future features for **The End The Beginnin
 
 ## 🔴 High Priority Issues
 
-### 🐛 No Window Icon Resource
-- **Description:** Application icon is referenced but image file doesn't exist yet
-- **Location:** `TheEndTheBeginning.java` line ~88
-- **Impact:** Application runs with default Java icon
-- **Status:** Open
-- **Fix Required:** Create and add game-icon.png to resources/icons/
-
-### 🐛 GameState Synchronization
-- **Description:** Some edge cases may cause desync between player object and GameState legacy system
-- **Location:** `MainControllerNew.java` syncPlayerToGameState method
-- **Impact:** Stats display may not always match actual player stats
-- **Status:** Open
-- **Fix Required:** Consider migrating fully away from GameState to use only Player class
+_No open high priority issues at this time._
 
 ---
 
@@ -78,6 +66,21 @@ This file tracks all tasks, bugs, and future features for **The End The Beginnin
 ---
 
 ## ✅ Completed Tasks
+
+### ✅ No Window Icon Resource
+- **Description:** Application icon file already exists at resources/icons/game-icon.png
+- **Location:** `TheEndTheBeginning.java` line ~88
+- **Impact:** Application now displays custom game icon instead of default Java icon
+- **Status:** Resolved (icon file was already present)
+- **Date:** October 3, 2025
+
+### ✅ GameState Synchronization
+- **Description:** Fixed edge cases that could cause desync between player object and GameState legacy system
+- **Location:** `MainControllerNew.java` syncPlayerToGameState method
+- **Impact:** Stats display now consistently matches actual player stats
+- **Status:** Resolved
+- **Fix Applied:** Added syncPlayerToGameState() calls before all updateUI() invocations and added comprehensive documentation
+- **Date:** October 3, 2025
 
 ### ✅ Extended Dungeon System
 - **Description:** Expanded from 10 to 50 levels
