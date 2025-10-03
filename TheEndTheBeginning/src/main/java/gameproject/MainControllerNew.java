@@ -69,7 +69,8 @@ public class MainControllerNew implements Initializable {
         // Allow Enter key to submit input
         inputField.setOnAction(event -> handleSubmit());
         
-        // Initialize UI
+        // Initialize UI - sync player stats to gameState before updating display
+        syncPlayerToGameState();
         updateUI();
     }
     
@@ -155,6 +156,7 @@ public class MainControllerNew implements Initializable {
         appendToGameText("🤔 Do you dare to enter the depths? (YES/NO): ");
         waitingForInput = true;
         expectedInputType = "START_CONFIRMATION";
+        syncPlayerToGameState();
         updateUI();
     }
     
@@ -374,6 +376,21 @@ public class MainControllerNew implements Initializable {
     }
     
     
+    /**
+     * Synchronizes player stats to the legacy GameState system.
+     * 
+     * IMPORTANT: This method must be called before updateUI() to ensure
+     * the UI displays accurate player stats. The Player object is the
+     * source of truth for all player stats (health, attack, defense),
+     * while GameState tracks dungeon progression (level, room, searches).
+     * 
+     * Call this after any operation that modifies player stats:
+     * - Taking damage or healing
+     * - Gaining experience or leveling up
+     * - Using items that affect stats
+     * - Loading a saved game
+     * - Creating a new player instance
+     */
     private void syncPlayerToGameState() {
         gameState.setHealth(player.getHealth());
         gameState.setAttack(player.getAttack());
@@ -769,9 +786,18 @@ public class MainControllerNew implements Initializable {
         monsterHealth = 0;
         gameTextArea.clear();
         displayWelcomeMessage();
+        syncPlayerToGameState();
         updateUI();
     }
     
+    /**
+     * Updates the UI labels with current player stats.
+     * 
+     * IMPORTANT: Always call syncPlayerToGameState() before this method
+     * to ensure GameState has the latest player stats. The UI reads from
+     * the Player object when available, but falls back to GameState if
+     * the player is not initialized (e.g., during initial UI setup).
+     */
     private void updateUI() {
         if (player != null) {
             healthLabel.setText("❤ Health: " + player.getHealth());
@@ -786,6 +812,7 @@ public class MainControllerNew implements Initializable {
                 healthLabel.getStyleClass().remove("low-health");
             }
         } else {
+            // Fallback to GameState (only used during initialization)
             healthLabel.setText("❤ Health: " + gameState.getHealth());
             defenseLabel.setText("🛡 Defense: " + gameState.getDefense());
             attackLabel.setText("⚔ Attack: " + gameState.getAttack());
