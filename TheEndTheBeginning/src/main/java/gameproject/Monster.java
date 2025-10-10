@@ -3,6 +3,8 @@ package gameproject;
 /**
  * Simple Monster class for combat encounters
  * This is a lightweight version for the MainController to use
+ * 
+ * @version 3.1.0
  */
 public class Monster {
     private final String name;
@@ -26,8 +28,10 @@ public class Monster {
     public String getSpecialAbility() { return specialAbility; }
     
     public void takeDamage(int damage) {
-        health -= damage;
-        if (health < 0) health = 0;
+        // Clamp damage to safe range
+        int clampedDamage = Balance.clampDamage(damage);
+        health -= clampedDamage;
+        health = Balance.clampHP(health, maxHealth);
     }
     
     public boolean isAlive() {
@@ -35,6 +39,8 @@ public class Monster {
     }
     
     public int calculateDamage() {
-        return attack + (int)(Math.random() * attack);
+        // Calculate damage with randomness, then clamp
+        int baseDamage = attack + (int)(Math.random() * attack);
+        return Balance.clampDamage(baseDamage);
     }
 }

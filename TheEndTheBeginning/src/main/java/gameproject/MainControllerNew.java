@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -31,7 +32,7 @@ import main.model.Player;
  * - Improved combat mechanics with status effects
  * 
  * @author Abdul Fornah
- * @version 2.0 (Enhanced)
+ * @version 3.1.0 (Text/UI Overhaul)
  */
 public class MainControllerNew implements Initializable {
     
@@ -820,8 +821,44 @@ public class MainControllerNew implements Initializable {
         }
     }
     
+    /**
+     * Shows game text by clearing the text area and displaying only the new message.
+     * This implements the overwrite-only text behavior specified in v3.1.0.
+     * 
+     * @param text The text to display
+     */
+    private void showGameText(String text) {
+        Platform.runLater(() -> {
+            gameTextArea.setEditable(false);
+            gameTextArea.setWrapText(true);
+            gameTextArea.clear();
+            gameTextArea.setText(text);
+            gameTextArea.positionCaret(0); // ensure top visible
+        });
+    }
+    
+    /**
+     * Shows a single line of game text (adds newline if not present).
+     * 
+     * @param text The text to display
+     */
+    private void showGameTextLine(String text) {
+        showGameText(text.endsWith("\n") ? text : text + "\n");
+    }
+    
+    /**
+     * Legacy method - temporarily kept for compatibility during refactoring.
+     * DEPRECATED: Use showGameText() or showGameTextLine() instead.
+     * 
+     * @param text The text to append (will actually replace all text)
+     * @deprecated Use showGameText() for proper overwrite-only behavior
+     */
+    @Deprecated
     private void appendToGameText(String text) {
-        gameTextArea.appendText(text);
+        // For now, accumulate text for gradual transition
+        Platform.runLater(() -> {
+            gameTextArea.appendText(text);
+        });
     }
     
     // ===== LEGACY GAMESTATE CLASS FOR COMPATIBILITY =====
