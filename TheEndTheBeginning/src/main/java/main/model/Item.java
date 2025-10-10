@@ -114,7 +114,7 @@ public class Item {
      * @param player The player using this item
      * @return A description of what happened when the item was used
      */
-    public String use(player player) {
+    public String use(Player player) {
         if (isQuestItem && type == ItemType.KEY_ITEM) {
             return "This item cannot be used directly. It's needed for something special.";
         }
@@ -149,7 +149,7 @@ public class Item {
     /**
      * Handles consumable item effects (healing, buffs, etc.)
      */
-    private String useConsumableItem(player player) {
+    private String useConsumableItem(Player player) {
         switch (name.toLowerCase()) {
             case "health potion":
             case "minor healing potion":
@@ -190,7 +190,7 @@ public class Item {
     /**
      * Handles weapon upgrades and replacements
      */
-    private String useWeaponItem(player player) {
+    private String useWeaponItem(Player player) {
         int currentAttack = player.getAttack();
         int newAttack = currentAttack + value;
         player.setAttack(newAttack);
@@ -201,7 +201,7 @@ public class Item {
     /**
      * Handles armor upgrades and replacements
      */
-    private String useArmorItem(player player) {
+    private String useArmorItem(Player player) {
         int currentDefense = player.getDefense();
         int newDefense = currentDefense + value;
         player.setDefense(newDefense);
@@ -212,7 +212,7 @@ public class Item {
     /**
      * Handles special accessory effects
      */
-    private String useAccessoryItem(player player) {
+    private String useAccessoryItem(Player player) {
         switch (name.toLowerCase()) {
             case "lucky charm":
                 player.setAttack(player.getAttack() + 2);

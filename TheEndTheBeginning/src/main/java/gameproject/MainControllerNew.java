@@ -13,7 +13,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.util.Duration;
 import main.model.Item;
-import main.model.player;
+import main.model.Player;
 
 /**
  * Enhanced MainController class - JavaFX Controller for "The End The Beginning" game.
@@ -48,7 +48,7 @@ public class MainControllerNew implements Initializable {
     @FXML private Label levelLabel;         // Player level display
     
     // ===== GAME STATE MANAGEMENT =====
-    private player player;                  // Enhanced player system
+    private Player player;                  // Enhanced player system
     private GameState gameState;            // Legacy compatibility system
     private boolean isGameRunning = false;
     private boolean waitingForInput = false;
@@ -59,7 +59,7 @@ public class MainControllerNew implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Initialize enhanced player system
-        player = new player();
+        player = new Player();
         
         // Initialize legacy game state for compatibility
         gameState = new GameState();
@@ -133,7 +133,7 @@ public class MainControllerNew implements Initializable {
     }
     
     private void startNewGame() {
-        player = new player();
+        player = new Player();
         gameState.resetGame();
         isGameRunning = true;
         gameTextArea.clear();
@@ -222,21 +222,21 @@ public class MainControllerNew implements Initializable {
     private void handleClassSelection(String input) {
         try {
             int classChoice = Integer.parseInt(input);
-            main.model.player.PlayerClass chosenClass;
+            Player.PlayerClass chosenClass;
             
             switch (classChoice) {
                 case 1 -> {
-                    chosenClass = main.model.player.PlayerClass.WARRIOR;
+                    chosenClass = Player.PlayerClass.WARRIOR;
                     appendToGameText("\n🛡️ You have chosen the path of the WARRIOR!\n");
                     appendToGameText("Strong and resilient, you face danger with unwavering courage.\n");
                 }
                 case 2 -> {
-                    chosenClass = main.model.player.PlayerClass.MAGE;
+                    chosenClass = Player.PlayerClass.MAGE;
                     appendToGameText("\n🧙 You have chosen the path of the MAGE!\n");
                     appendToGameText("Wielding arcane power, you bend reality to your will.\n");
                 }
                 case 3 -> {
-                    chosenClass = main.model.player.PlayerClass.ROGUE;
+                    chosenClass = Player.PlayerClass.ROGUE;
                     appendToGameText("\n😏 You have chosen the path of the ROGUE!\n");
                     appendToGameText("Swift and cunning, you strike from the shadows.\n");
                 }
@@ -316,9 +316,9 @@ public class MainControllerNew implements Initializable {
         
         try {
             // Restore player class
-            main.model.player.PlayerClass loadedClass = 
-                main.model.player.PlayerClass.valueOf(saveData.playerClass);
-            player = new player(saveData.name, loadedClass);
+            Player.PlayerClass loadedClass = 
+                Player.PlayerClass.valueOf(saveData.playerClass);
+            player = new Player(saveData.name, loadedClass);
             
             // Restore player stats
             player.restoreSaveData(
@@ -354,7 +354,7 @@ public class MainControllerNew implements Initializable {
         } catch (Exception e) {
             appendToGameText("\n❌ Error restoring save data: " + e.getMessage() + "\n");
             appendToGameText("Starting new game...\n\n");
-            player = new player();
+            player = new Player();
             gameState.resetGame();
             appendToGameText("🤔 Do you dare to enter the depths? (YES/NO): ");
             waitingForInput = true;
@@ -777,7 +777,7 @@ public class MainControllerNew implements Initializable {
     }
     
     private void resetGame() {
-        player = new player();
+        player = new Player();
         gameState.resetGame();
         isGameRunning = false;
         waitingForInput = false;

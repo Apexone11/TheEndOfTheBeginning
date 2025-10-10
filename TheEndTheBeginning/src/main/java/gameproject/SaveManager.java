@@ -1,6 +1,6 @@
 package gameproject;
 
-import main.model.player;
+import main.model.Player;
 import java.io.*;
 import java.nio.file.*;
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public class SaveManager {
      * @param dungeonLevel Current dungeon level
      * @return true if save was successful, false otherwise
      */
-    public static boolean saveGame(player player, int dungeonLevel) {
+    public static boolean saveGame(Player player, int dungeonLevel) {
         try {
             // Create save directory if it doesn't exist
             Files.createDirectories(Paths.get(SAVE_DIR));
