@@ -3,6 +3,81 @@
 This file tracks all releases and updates for **The End The Beginning - Dungeon Escape Game**.
 
 
+## Version 3.1.0 - Text/UI Overhaul (October 2025)
+
+**Release Date:** October 2025
+
+### 🎉 Overview
+
+Version 3.1.0 is a major refactoring release focused on improving text display, user experience, and code quality. The most significant change is the **removal of FXGL** in favor of pure JavaFX, resulting in a lighter, more maintainable codebase.
+
+### 🌟 New Features
+
+#### Overwrite-Only Text Behavior
+- ✅ **No Scrolling** - Game text now replaces instead of appending for cleaner UX
+- ✅ **New Text Helpers** - `showGameText()` and `showGameTextLine()` methods
+- ✅ **Platform.runLater** - All UI updates properly threaded for safety
+
+#### Five Single-Player Features
+1. ✅ **Auto-Save & Quick-Load** - Auto-saves after rooms/combat/level-ups; quick-load latest save
+2. ✅ **In-Game Settings Panel** - Text speed, high-contrast mode, confirmations
+3. ✅ **Inventory Quick-Use** - Type `use <item>` anytime (e.g., `use potion`)
+4. ✅ **Contextual Hints** - Helpful hints after 3 invalid inputs in same state
+5. ✅ **Difficulty Preview** - See exact multipliers/bonuses before confirming difficulty
+
+#### Code Quality Improvements
+- ✅ **Input Normalization** - `InputUtil` class for consistent input handling
+- ✅ **Balance Constants** - Centralized difficulty multipliers in `Balance` class
+- ✅ **Combat Safety** - Clamped HP/ATK values prevent overflow
+- ✅ **Settings Persistence** - Config saved to `~/.the-end-the-beginning/config.properties`
+
+### ⚠️ Breaking/Infrastructure Changes
+
+- ✅ **FXGL Removed** - Now pure JavaFX; lighter and more maintainable
+- ✅ **Class Rename** - `player` → `Player` (proper Java naming)
+- ✅ **New Save Location** - `~/.the-end-the-beginning/saves/` (from `~/.theendthebeginning/`)
+- ✅ **Version Bump** - Project version: 3.0.0 → 3.1.0
+
+### 🐛 Bug Fixes
+
+- ✅ **UI Thread Safety** - All UI updates wrapped in `Platform.runLater`
+- ✅ **SaveManager Hardening** - Try-with-resources for file operations
+- ✅ **Input Validation** - Empty player names rejected with clear message
+- ✅ **Monster Damage** - Clamped to safe ranges [0, 1,000,000]
+- ✅ **HP Clamping** - Player and monster HP always within valid bounds
+
+### 🎨 UI/UX Improvements
+
+- ✅ **High-Contrast Theme** - `high-contrast.css` for accessibility
+- ✅ **Focus Management** - Input field stays focused after actions
+- ✅ **Difficulty Preview** - Shows exact stats before confirming
+- ✅ **Contextual Hints** - Smart help system triggers after repeated mistakes
+
+### 📦 New Files
+
+**Java Classes:**
+- `gameproject/InputUtil.java` - Input normalization utility
+- `gameproject/Balance.java` - Difficulty constants and safety methods
+- `gameproject/Settings.java` - Settings persistence
+
+**Resources:**
+- `high-contrast.css` - Accessibility theme
+
+### 📝 Documentation Updates
+
+- ✅ **README.md** - Updated to v3.1.0 with new features
+- ✅ **RELEASE_NOTES.md** - This file (new section)
+- ✅ **Version** - Updated in `pom.xml` to 3.1.0
+
+### 🎯 Compatibility
+
+**Supported Versions:** 3.1.x (Current)  
+**Java:** 17+ required  
+**JavaFX:** 20  
+**FXGL:** None (removed)
+
+---
+
 ## Version 3.0.1 - Infrastructure & Future-Ready Update
 
 **Release Date:** October 2025

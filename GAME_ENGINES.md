@@ -6,20 +6,19 @@ This document tracks game engine and framework integrations for The End The Begi
 
 ## Integrated Frameworks
 
-### ✅ FXGL (JavaFX Game Library)
-- **Status**: Integrated in version 3.0.1
-- **Version**: 17.3
-- **Purpose**: Future GUI enhancements, animations, particle effects, audio
-- **Documentation**: See [FXGL_INTEGRATION.md](FXGL_INTEGRATION.md)
+### ❌ FXGL (JavaFX Game Library) - REMOVED in v3.1.0
+- **Status**: Removed in version 3.1.0
+- **Previously**: Integrated in version 3.0.1, removed in 3.1.0
+- **Reason for Removal**: Simpler codebase, lighter dependencies, pure JavaFX sufficient for current needs
 - **Official Site**: [https://github.com/AlmasB/FXGL](https://github.com/AlmasB/FXGL)
-- **Why**: Well-established JavaFX game library with extensive features and community support
+- **Note**: May be reconsidered in future versions if advanced game features are needed
 
-### ✅ JavaFX
-- **Status**: Core framework (since v1.0)
+### ✅ JavaFX (Pure Implementation)
+- **Status**: Core framework (since v1.0, now exclusive since v3.1.0)
 - **Version**: 20
-- **Purpose**: UI, graphics, application framework
+- **Purpose**: UI, graphics, application framework, all game functionality
 - **Official Site**: [https://openjfx.io/](https://openjfx.io/)
-- **Why**: Modern, cross-platform UI framework for Java
+- **Why**: Modern, cross-platform UI framework sufficient for our text-adventure game
 
 ## Researched but Not Integrated
 
@@ -84,24 +83,26 @@ When considering new frameworks:
    - Integration examples
    - Troubleshooting tips
 
-## Current Stack Summary
+## Current Stack Summary (v3.1.0)
 
 ```
 The End The Beginning Tech Stack:
 ├── Java 17 (Language)
-├── JavaFX 20 (UI Framework)
-├── FXGL 17.3 (Game Library - Future Use)
+├── JavaFX 20 (UI Framework - Pure Implementation)
 ├── Maven (Build Tool)
 └── CSS (Styling)
+
+Removed in v3.1.0:
+✗ FXGL 17.3 (No longer needed)
 ```
 
 ## Recommendations
 
 For contributors and future development:
 
-1. **Stick with FXGL** for game-specific features
-2. **Keep JavaFX** for UI and basic graphics
-3. **Avoid framework bloat** - only add what's needed
+1. **Stick with Pure JavaFX** for game features (current approach)
+2. **Keep it Simple** - avoid unnecessary dependencies
+3. **Consider FXGL** only if we need advanced features (particles, complex animations)
 4. **Test thoroughly** before integrating new frameworks
 5. **Document decisions** in this file
 

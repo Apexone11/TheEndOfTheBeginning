@@ -18,28 +18,32 @@ TheEndOfTheBeginning/
 ├── RELEASE_NOTES.md            # Detailed release notes with template
 ├── TODO.md                     # Task tracking, bugs, and roadmap
 ├── PROJECT_STRUCTURE.md        # This file - project structure overview
-├── FXGL_INTEGRATION.md         # FXGL game library integration guide
+├── FXGL_INTEGRATION.md         # FXGL integration guide (HISTORICAL - FXGL removed in v3.1.0)
 ├── GAME_ENGINES.md             # Game engine evaluation and decisions
 └── TheEndTheBeginning/         # Main application directory
     ├── Launch-Game.bat         # Windows quick launch script (portable)
-    ├── pom.xml                 # Maven configuration (with FXGL)
+    ├── pom.xml                 # Maven configuration (Pure JavaFX, no FXGL)
     ├── run-game.bat           # Windows run script (portable)
     ├── src/                   # Source code
     │   └── main/
     │       ├── java/          # Java source files
     │       │   ├── gameproject/
     │       │   │   ├── package-info.java  # Package documentation
-    │       │   │   ├── TheEndTheBeginning.java
-    │       │   │   ├── MainControllerNew.java
-    │       │   │   ├── SaveManager.java
-    │       │   │   └── Monster.java
+    │       │   │   ├── TheEndTheBeginning.java  # Main application
+    │       │   │   ├── MainControllerNew.java   # Game controller
+    │       │   │   ├── SaveManager.java         # Save/load system
+    │       │   │   ├── Monster.java             # Monster class
+    │       │   │   ├── Balance.java             # Difficulty constants (v3.1.0)
+    │       │   │   ├── InputUtil.java           # Input normalization (v3.1.0)
+    │       │   │   └── Settings.java            # Settings persistence (v3.1.0)
     │       │   └── main/model/
     │       │       ├── package-info.java  # Package documentation
-    │       │       ├── player.java
-    │       │       └── Item.java
+    │       │       ├── Player.java        # Player class (renamed from player.java in v3.1.0)
+    │       │       └── Item.java          # Item system
     │       └── resources/     # Game resources
     │           ├── game.fxml  # UI layout
-    │           ├── game-style.css
+    │           ├── game-style.css         # Default theme
+    │           ├── high-contrast.css      # Accessibility theme (v3.1.0)
     │           └── icons/     # Game icons
     └── target/                # Compiled output (auto-generated)
 ```

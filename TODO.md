@@ -1,7 +1,7 @@
 # TODO & Issue Tracking - The End The Beginning
 
-**Last Updated:** September 30, 2025  
-**Version:** 3.0+
+**Last Updated:** October 2025  
+**Version:** 3.1.0
 
 ## 🎯 How to Use This File
 
@@ -18,6 +18,33 @@ This file tracks all tasks, bugs, and future features for **The End The Beginnin
 - 🔴 **High** - Critical issues affecting gameplay
 - 🟡 **Medium** - Important but not blocking
 - 🟢 **Low** - Nice to have improvements
+
+---
+
+## ✅ Completed in v3.1.0
+
+### FXGL Removal
+- ✅ Removed FXGL dependency; pure JavaFX implementation
+- ✅ Updated build configuration
+
+### Text/UI Overhaul
+- ✅ Overwrite-only text behavior (no scrolling)
+- ✅ Platform.runLater for UI thread safety
+- ✅ High-contrast theme for accessibility
+
+### Five Single-Player Features
+- ✅ Auto-Save & Quick-Load functionality
+- ✅ In-game Settings Panel (text speed, high-contrast, confirmations)
+- ✅ Inventory Quick-Use command (`use <item>`)
+- ✅ Contextual Hints system (after 3 invalid inputs)
+- ✅ Difficulty Preview & Rebalance
+
+### Code Quality
+- ✅ Input normalization (InputUtil class)
+- ✅ Balance constants (Balance class)
+- ✅ Combat/math safety (clamped values)
+- ✅ SaveManager hardening
+- ✅ Class rename: player → Player
 
 ---
 
@@ -48,15 +75,26 @@ _No open high priority issues at this time._
 
 ## 🟢 Low Priority / Future Ideas
 
-### ✨ Sound Effects
-- **Description:** Add background music and sound effects
+### ✨ SFX System (v3.2.0 planned)
+- **Description:** Add sound effects and audio feedback
 - **Impact:** Enhanced immersion
-- **Status:** Future consideration
+- **Status:** Next version (v3.2.0)
+- **Stub**: Settings field `sfxEnabled` already present
 
 ### ✨ Achievement System Expansion
 - **Description:** Add more achievements and statistics tracking
 - **Impact:** Increased replay value
 - **Status:** Future consideration
+
+### ✨ Performance Pass (v3.4.0 planned)
+- **Description:** Profile and optimize command handling
+- **Impact:** Smoother gameplay
+- **Status:** Future version
+
+### 📦 Distribution (v3.4.0 planned)
+- **Description:** jlink/jpackage scripts for platform bundles
+- **Impact:** Easier installation
+- **Status:** Future version
 
 ### 🔧 Performance Optimizations
 - **Description:** Profile and optimize game performance

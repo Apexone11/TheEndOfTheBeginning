@@ -1,23 +1,38 @@
-# The End The Beginning - Dungeon Escape Game v3.0
+# The End The Beginning - Dungeon Escape Game v3.1.0
 
 **The End The Beginning** is an immersive text-adventure dungeon escape game built with Java and JavaFX. Players embark on a perilous journey through a mysterious dungeon, battling monsters, collecting items, and progressing through **50 challenging levels** to achieve freedom.
 
-**Current Version:** 3.0 (Extended Edition)  
+**Current Version:** 3.1.0 (Text/UI Overhaul)  
 **Developer:** Abdul Fornah  
-**Framework:** Java 17+ with JavaFX 20
+**Framework:** Pure JavaFX 20 (Java 17+)
 
 ---
 
-## What's New in v3.0
+## What's New in v3.1.0
 
-### Major Features
-- **50-Level Dungeon** - Extended from 10 to 50 levels
-- **Save System** - Auto-save feature! Your progress is preserved automatically
-- **Enhanced UI** - Larger window (900x700), improved CSS styling
-- **New Achievements** - Three new achievements for reaching levels 30, 40, and 50
-- **Complete Documentation** - CHANGELOG.md and BUGS.md added
+### Removed FXGL — Now Pure JavaFX
+- Removed FXGL dependency for lighter, more maintainable codebase
+- Pure JavaFX implementation with improved performance
 
-See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
+### Text/UI Improvements
+- **Overwrite-Only Text** - Screen text no longer scrolls; always shows newest message
+- **High-Contrast Mode** - Accessibility-focused theme available in settings
+- **Improved Focus Management** - Input field stays focused for seamless gameplay
+
+### Five New Single-Player Features
+- **Auto-Save & Quick-Load** - Progress auto-saved after key events; quick-load latest save
+- **In-Game Settings Panel** - Configure text speed, high-contrast mode, and confirmations
+- **Inventory Quick-Use** - Type `use <item>` to quickly use items during gameplay
+- **Contextual Hints** - Helpful hints appear after 3 invalid inputs in the same state
+- **Difficulty Preview** - See exact multipliers and bonuses before confirming difficulty
+
+### Enhanced Code Quality
+- Input normalization for consistent behavior
+- Combat/math safety with clamped values
+- Hardened SaveManager with new location (~/.the-end-the-beginning/saves/)
+- Better error handling with Platform.runLater for UI thread safety
+
+See [RELEASE_NOTES.md](RELEASE_NOTES.md) for detailed release notes.
 
 ---
 
@@ -41,25 +56,21 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 ## Getting Started
 
 ### System Requirements
-- Java 17 or higher
-- JavaFX 20 (included via Maven)
+- **Java 17+** (required)
+- **JavaFX 20** (included via Maven)
 - 512MB RAM minimum
+- **No FXGL required** - Pure JavaFX
 
 ### Quick Start
 
-#### Option 1: Run with Maven (Recommended)
+#### Build & Run (Maven - Recommended)
 ```bash
 git clone https://github.com/Apexone11/TheEndOfTheBeginning.git
 cd TheEndOfTheBeginning/TheEndTheBeginning
-mvn clean compile
-mvn javafx:run
+mvn clean javafx:run
 ```
 
-#### Option 2: Windows Executable (if available)
-1. Download `TheEndTheBeginning.exe` from releases
-2. Double-click to run - no installation needed!
-
-### Building from Source
+#### Build & Run (Alternative)
 ```bash
 # Compile the project
 mvn clean compile
@@ -71,16 +82,31 @@ mvn javafx:run
 mvn clean package
 ```
 
+### Controls / Commands
+- **Numbered choices** - Enter 1, 2, 3, etc. for menu options
+- **Quick-Use Items** - Type `use <item>` (e.g., `use potion`) anytime during gameplay
+- **Settings** - Accessible from game menu
+- **Navigation** - Follow on-screen prompts
+
 ---
 
 ## How to Play
 
 1. Click "Start New Game"
 2. Choose to LOAD saved game or start NEW
-3. Select character class and difficulty
-4. Explore, fight, and survive 50 floors!
+3. Select character class (Warrior/Mage/Rogue)
+4. Choose difficulty (with preview!)
+5. Explore, fight, and survive 50 floors!
 
-Your progress is automatically saved as you play.
+### Tips
+- Type `use potion` anytime to quickly use items
+- Your progress auto-saves after rooms and combat
+- Enable high-contrast mode in settings for better visibility
+- Watch for contextual hints if you're stuck
+
+### Saves & Config
+- **Saves**: `~/.the-end-the-beginning/saves/`
+- **Config**: `~/.the-end-the-beginning/config.properties`
 
 ---
 
