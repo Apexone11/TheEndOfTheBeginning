@@ -1,5 +1,7 @@
 # Update Summary - Version 3.0.1
 
+> **⚠️ NOTE (October 2025):** As of v3.1.0, the FXGL dependency has been removed in favor of pure JavaFX implementation. See [RELEASE_NOTES.md](RELEASE_NOTES.md) for v3.1.0 details.
+
 ## Overview
 
 This document summarizes the infrastructure and enhancement updates made in version 3.0.1 of **The End The Beginning - Dungeon Escape Game**.

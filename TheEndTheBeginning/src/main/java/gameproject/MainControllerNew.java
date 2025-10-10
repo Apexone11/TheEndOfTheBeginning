@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -13,7 +14,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.util.Duration;
 import main.model.Item;
-import main.model.player;
+import main.model.Player;
 
 /**
  * Enhanced MainController class - JavaFX Controller for "The End The Beginning" game.
@@ -31,7 +32,7 @@ import main.model.player;
  * - Improved combat mechanics with status effects
  * 
  * @author Abdul Fornah
- * @version 2.0 (Enhanced)
+ * @version 3.1.0 (Text/UI Overhaul)
  */
 public class MainControllerNew implements Initializable {
     
@@ -48,7 +49,7 @@ public class MainControllerNew implements Initializable {
     @FXML private Label levelLabel;         // Player level display
     
     // ===== GAME STATE MANAGEMENT =====
-    private player player;                  // Enhanced player system
+    private Player player;                  // Enhanced player system
     private GameState gameState;            // Legacy compatibility system
     private boolean isGameRunning = false;
     private boolean waitingForInput = false;
@@ -56,13 +57,23 @@ public class MainControllerNew implements Initializable {
     private Monster currentMonster;
     private int monsterHealth = 0;
     
+    // ===== V3.1.0 NEW FEATURES =====
+    private Settings settings;              // Game settings
+    private int invalidInputCount = 0;      // For contextual hints
+    private String lastGameState = "";      // Track state for hints
+    private String difficulty = "NORMAL";   // Current difficulty
+    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Initialize enhanced player system
-        player = new player();
+        player = new Player();
         
         // Initialize legacy game state for compatibility
         gameState = new GameState();
+        
+        // Load settings
+        settings = Settings.load();
+        applySettings();
         
         displayWelcomeMessage();
         
@@ -72,6 +83,32 @@ public class MainControllerNew implements Initializable {
         // Initialize UI - sync player stats to gameState before updating display
         syncPlayerToGameState();
         updateUI();
+        
+        // Keep input focused
+        Platform.runLater(() -> inputField.requestFocus());
+    }
+    
+    /**
+     * Applies current settings to the game UI.
+     */
+    private void applySettings() {
+        if (settings.highContrast) {
+            try {
+                gameTextArea.getScene().getStylesheets().clear();
+                gameTextArea.getScene().getStylesheets().add(
+                    getClass().getResource("/high-contrast.css").toExternalForm());
+            } catch (Exception e) {
+                System.err.println("Error loading high-contrast theme: " + e.getMessage());
+            }
+        } else {
+            try {
+                gameTextArea.getScene().getStylesheets().clear();
+                gameTextArea.getScene().getStylesheets().add(
+                    getClass().getResource("/game-style.css").toExternalForm());
+            } catch (Exception e) {
+                // Normal stylesheet might not exist yet, that's ok
+            }
+        }
     }
     
     private void displayWelcomeMessage() {
@@ -133,7 +170,7 @@ public class MainControllerNew implements Initializable {
     }
     
     private void startNewGame() {
-        player = new player();
+        player = new Player();
         gameState.resetGame();
         isGameRunning = true;
         gameTextArea.clear();
@@ -162,6 +199,14 @@ public class MainControllerNew implements Initializable {
     
     private void processInput(String input) {
         waitingForInput = false;
+        
+        // Check for quick-use command (Feature 3)
+        String normalizedInput = InputUtil.norm(input);
+        if (normalizedInput.startsWith("USE ") && isGameRunning) {
+            String itemName = normalizedInput.substring(4).trim();
+            handleQuickUse(itemName);
+            return;
+        }
         
         switch (expectedInputType) {
             case "LOAD_OR_NEW" -> {
@@ -193,14 +238,78 @@ public class MainControllerNew implements Initializable {
             case "CLASS_SELECTION" -> handleClassSelection(input);
             case "DIFFICULTY" -> handleDifficultySelection(input);
             case "PLAYER_NAME" -> {
-                player.setName(input);
-                startGameplay();
+                // Validate name is not empty
+                String normalizedName = input.trim();
+                if (normalizedName.isEmpty()) {
+                    appendToGameText("\n❌ Your name cannot be empty! Please enter a valid name: ");
+                    waitingForInput = true;
+                    expectedInputType = "PLAYER_NAME";
+                } else {
+                    player.setName(normalizedName);
+                    startGameplay();
+                }
             }
-            case "ROOM_ACTION" -> handleRoomAction(input);
-            case "MONSTER_ACTION" -> handleMonsterAction(input);
-            case "COMBAT_ACTION" -> handleCombatAction(input);
-            case "INVENTORY_ACTION" -> handleInventoryAction(input);
+            case "ROOM_ACTION" -> {
+                handleRoomAction(input);
+                resetInvalidInputCount();
+            }
+            case "MONSTER_ACTION" -> {
+                handleMonsterAction(input);
+                resetInvalidInputCount();
+            }
+            case "COMBAT_ACTION" -> {
+                handleCombatAction(input);
+                resetInvalidInputCount();
+            }
+            case "INVENTORY_ACTION" -> {
+                handleInventoryAction(input);
+                resetInvalidInputCount();
+            }
         }
+    }
+    
+    /**
+     * Tracks invalid inputs for contextual hint system (Feature 4 - v3.1.0).
+     */
+    private void trackInvalidInput(String context) {
+        if (!lastGameState.equals(context)) {
+            lastGameState = context;
+            invalidInputCount = 0;
+        }
+        
+        invalidInputCount++;
+        
+        if (invalidInputCount >= 3) {
+            showContextualHint(context);
+            invalidInputCount = 0; // Reset after showing hint
+        }
+    }
+    
+    /**
+     * Resets invalid input counter when valid input is received.
+     */
+    private void resetInvalidInputCount() {
+        invalidInputCount = 0;
+    }
+    
+    /**
+     * Shows contextual hints based on current game state (Feature 4 - v3.1.0).
+     */
+    private void showContextualHint(String context) {
+        StringBuilder hint = new StringBuilder();
+        hint.append("\n💡 HINT: ");
+        
+        switch (context) {
+            case "ROOM_ACTION" -> hint.append("Enter 1 to search, 2 to move, 3 for stats, or 4 for inventory. You can also type 'use <item>' to use items quickly!");
+            case "MONSTER_ACTION" -> hint.append("Enter 1 to fight, 2 to flee, or 3 to use an item from your inventory.");
+            case "COMBAT_ACTION" -> hint.append("Enter 1 to attack or 2 to use an item during combat.");
+            case "CLASS_SELECTION" -> hint.append("Choose a class: 1 for Warrior (tanky), 2 for Mage (high damage), or 3 for Rogue (balanced).");
+            case "DIFFICULTY" -> hint.append("Select difficulty: 1-Easy, 2-Normal, 3-Hard, or 4-Death mode!");
+            default -> hint.append("Follow the on-screen prompts and enter the corresponding number or command.");
+        }
+        
+        hint.append("\n");
+        appendToGameText(hint.toString());
     }
     
     private void askForPlayerClass() {
@@ -222,25 +331,26 @@ public class MainControllerNew implements Initializable {
     private void handleClassSelection(String input) {
         try {
             int classChoice = Integer.parseInt(input);
-            main.model.player.PlayerClass chosenClass;
+            Player.PlayerClass chosenClass;
             
             switch (classChoice) {
                 case 1 -> {
-                    chosenClass = main.model.player.PlayerClass.WARRIOR;
+                    chosenClass = Player.PlayerClass.WARRIOR;
                     appendToGameText("\n🛡️ You have chosen the path of the WARRIOR!\n");
                     appendToGameText("Strong and resilient, you face danger with unwavering courage.\n");
                 }
                 case 2 -> {
-                    chosenClass = main.model.player.PlayerClass.MAGE;
+                    chosenClass = Player.PlayerClass.MAGE;
                     appendToGameText("\n🧙 You have chosen the path of the MAGE!\n");
                     appendToGameText("Wielding arcane power, you bend reality to your will.\n");
                 }
                 case 3 -> {
-                    chosenClass = main.model.player.PlayerClass.ROGUE;
+                    chosenClass = Player.PlayerClass.ROGUE;
                     appendToGameText("\n😏 You have chosen the path of the ROGUE!\n");
                     appendToGameText("Swift and cunning, you strike from the shadows.\n");
                 }
                 default -> {
+                    trackInvalidInput("CLASS_SELECTION");
                     appendToGameText("Please enter 1, 2, or 3: ");
                     waitingForInput = true;
                     return;
@@ -251,6 +361,7 @@ public class MainControllerNew implements Initializable {
             askForDifficulty();
             
         } catch (NumberFormatException e) {
+            trackInvalidInput("CLASS_SELECTION");
             appendToGameText("Please enter a valid number (1-3): ");
             waitingForInput = true;
         }
@@ -269,9 +380,47 @@ public class MainControllerNew implements Initializable {
     
     private void handleDifficultySelection(String input) {
         try {
-            int difficulty = Integer.parseInt(input);
-            if (difficulty >= 1 && difficulty <= 4) {
-                appendToGameText("\n⚙️ Difficulty set!\n");
+            int diffChoice = Integer.parseInt(input);
+            if (diffChoice >= 1 && diffChoice <= 4) {
+                // Show difficulty preview
+                StringBuilder preview = new StringBuilder();
+                preview.append("\n📊 Difficulty Preview:\n\n");
+                
+                switch (diffChoice) {
+                    case 1 -> {
+                        difficulty = "EASY";
+                        preview.append("🟢 EASY MODE\n");
+                        preview.append("• Monster HP: ").append((int)(Balance.EASY_HP * 100)).append("%\n");
+                        preview.append("• Monster ATK: ").append((int)(Balance.EASY_ATK * 100)).append("%\n");
+                        preview.append("• Player DEF Bonus: +").append((int)(Balance.EASY_DEF_BONUS * 100)).append("%\n");
+                        preview.append("• Healing: ").append((int)(Balance.EASY_HEAL_MOD * 100)).append("%\n");
+                    }
+                    case 2 -> {
+                        difficulty = "NORMAL";
+                        preview.append("🟡 NORMAL MODE\n");
+                        preview.append("• Monster HP: ").append((int)(Balance.NORM_HP * 100)).append("%\n");
+                        preview.append("• Monster ATK: ").append((int)(Balance.NORM_ATK * 100)).append("%\n");
+                        preview.append("• Balanced gameplay\n");
+                    }
+                    case 3 -> {
+                        difficulty = "HARD";
+                        preview.append("🔴 HARD MODE\n");
+                        preview.append("• Monster HP: ").append((int)(Balance.HARD_HP * 100)).append("%\n");
+                        preview.append("• Monster ATK: ").append((int)(Balance.HARD_ATK * 100)).append("%\n");
+                        preview.append("• Healing: ").append((int)(Balance.HARD_HEAL_MOD * 100)).append("%\n");
+                    }
+                    case 4 -> {
+                        difficulty = "DEATH";
+                        preview.append("⚫ DEATH MODE\n");
+                        preview.append("• Monster HP: 150%\n");
+                        preview.append("• Monster ATK: 130%\n");
+                        preview.append("• Healing: 80%\n");
+                        preview.append("• ⚠️ No mercy!\n");
+                    }
+                }
+                
+                preview.append("\n⚙️ Difficulty set to ").append(difficulty).append("!\n");
+                appendToGameText(preview.toString());
                 askForPlayerName();
             } else {
                 appendToGameText("Please enter a number between 1-4: ");
@@ -316,9 +465,9 @@ public class MainControllerNew implements Initializable {
         
         try {
             // Restore player class
-            main.model.player.PlayerClass loadedClass = 
-                main.model.player.PlayerClass.valueOf(saveData.playerClass);
-            player = new player(saveData.name, loadedClass);
+            Player.PlayerClass loadedClass = 
+                Player.PlayerClass.valueOf(saveData.playerClass);
+            player = new Player(saveData.name, loadedClass);
             
             // Restore player stats
             player.restoreSaveData(
@@ -354,7 +503,7 @@ public class MainControllerNew implements Initializable {
         } catch (Exception e) {
             appendToGameText("\n❌ Error restoring save data: " + e.getMessage() + "\n");
             appendToGameText("Starting new game...\n\n");
-            player = new player();
+            player = new Player();
             gameState.resetGame();
             appendToGameText("🤔 Do you dare to enter the depths? (YES/NO): ");
             waitingForInput = true;
@@ -777,7 +926,7 @@ public class MainControllerNew implements Initializable {
     }
     
     private void resetGame() {
-        player = new player();
+        player = new Player();
         gameState.resetGame();
         isGameRunning = false;
         waitingForInput = false;
@@ -820,8 +969,77 @@ public class MainControllerNew implements Initializable {
         }
     }
     
+    /**
+     * Shows game text by clearing the text area and displaying only the new message.
+     * This implements the overwrite-only text behavior specified in v3.1.0.
+     * 
+     * @param text The text to display
+     */
+    private void showGameText(String text) {
+        Platform.runLater(() -> {
+            gameTextArea.setEditable(false);
+            gameTextArea.setWrapText(true);
+            gameTextArea.clear();
+            gameTextArea.setText(text);
+            gameTextArea.positionCaret(0); // ensure top visible
+        });
+    }
+    
+    /**
+     * Shows a single line of game text (adds newline if not present).
+     * 
+     * @param text The text to display
+     */
+    private void showGameTextLine(String text) {
+        showGameText(text.endsWith("\n") ? text : text + "\n");
+    }
+    
+    /**
+     * Legacy method - temporarily kept for compatibility during refactoring.
+     * DEPRECATED: Use showGameText() or showGameTextLine() instead.
+     * 
+     * @param text The text to append (will actually replace all text)
+     * @deprecated Use showGameText() for proper overwrite-only behavior
+     */
+    @Deprecated
     private void appendToGameText(String text) {
-        gameTextArea.appendText(text);
+        // For now, accumulate text for gradual transition
+        Platform.runLater(() -> {
+            gameTextArea.appendText(text);
+        });
+    }
+    
+    /**
+     * Handles quick-use command for items (Feature 3 - v3.1.0).
+     * Allows using items during exploration or combat with "use <item>" command.
+     * 
+     * @param itemName The name of the item to use
+     */
+    private void handleQuickUse(String itemName) {
+        // Use player's existing useItem method
+        boolean success = player.useItem(itemName);
+        
+        if (!success) {
+            StringBuilder message = new StringBuilder();
+            message.append("❌ Item '").append(itemName).append("' not found in inventory.\n");
+            message.append("💼 Type '4' or use inventory menu to view your items.\n");
+            appendToGameText(message.toString());
+        } else {
+            // Show result
+            StringBuilder message = new StringBuilder();
+            message.append("✨ Used ").append(itemName).append("!\n");
+            message.append("❤️ Health: ").append(player.getHealth()).append("/").append(player.getMaxHealth()).append("\n");
+            appendToGameText(message.toString());
+            
+            // Update UI
+            syncPlayerToGameState();
+            updateUI();
+            
+            // Auto-save after item use
+            autoSave();
+        }
+        
+        waitingForInput = true;
     }
     
     // ===== LEGACY GAMESTATE CLASS FOR COMPATIBILITY =====

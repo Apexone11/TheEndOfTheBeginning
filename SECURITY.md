@@ -10,7 +10,8 @@ The following versions of the project are currently being supported with securit
 
 | Version | Supported          | Status |
 | ------- | ------------------ | ------ |
-| 3.0.x   | :white_check_mark: | Current stable release |
+| 3.1.x   | :white_check_mark: | Current stable release |
+| 3.0.x   | :x:                | Legacy, upgrade to 3.1.x |
 | 2.0.x   | :x:                | Legacy, no longer supported |
 | < 2.0   | :x:                | Deprecated |
 

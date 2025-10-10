@@ -1,0 +1,44 @@
+/* High Contrast Mode Stylesheet for The End The Beginning v3.1.0 */
+
+.root {
+    -fx-base: #111;
+    -fx-background: #111;
+}
+
+.text-area, .label {
+    -fx-text-fill: #eee;
+}
+
+.text-area {
+    -fx-control-inner-background: #222;
+    -fx-background-color: #222;
+}
+
+.button {
+    -fx-background-radius: 12;
+    -fx-padding: 8 14;
+    -fx-background-color: #333;
+    -fx-text-fill: #fff;
+    -fx-border-color: #666;
+    -fx-border-width: 2;
+}
+
+.button:hover {
+    -fx-background-color: #444;
+    -fx-border-color: #888;
+}
+
+.button:pressed {
+    -fx-background-color: #222;
+}
+
+.text-field {
+    -fx-background-color: #222;
+    -fx-text-fill: #eee;
+    -fx-border-color: #666;
+    -fx-border-width: 2;
+}
+
+.text-field:focused {
+    -fx-border-color: #aaa;
+}

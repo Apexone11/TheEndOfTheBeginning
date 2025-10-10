@@ -8,9 +8,9 @@ import java.util.*;
  * stats progression, inventory management, and achievements tracking.
  * 
  * @author Game Development Team
- * @version 2.0
+ * @version 3.1.0
  */
-public class player {
+public class Player {
     
     // Core player properties
     private String name;
@@ -78,7 +78,7 @@ public class player {
      * @param name The player's chosen name
      * @param playerClass The selected character class
      */
-    public player(String name, PlayerClass playerClass) {
+    public Player(String name, PlayerClass playerClass) {
         this.name = name;
         this.playerClass = playerClass;
         this.level = 1;
@@ -110,7 +110,7 @@ public class player {
     /**
      * Default constructor creates a Warrior named "Hero".
      */
-    public player() {
+    public Player() {
         this("Hero", PlayerClass.WARRIOR);
     }
     

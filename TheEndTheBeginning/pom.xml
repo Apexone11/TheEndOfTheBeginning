@@ -6,7 +6,7 @@
 
     <groupId>gameproject</groupId>
     <artifactId>theendthebeginning</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
     <name>The End The Beginning - Dungeon Escape</name>
     <description>An immersive 50-level dungeon escape game with JavaFX</description>
 
@@ -31,18 +31,12 @@
             <version>${javafx.version}</version>
             <classifier>${javafx.platform}</classifier>
         </dependency>
-        <!-- FXGL Game Development Framework for future GUI enhancements -->
+        <!-- JUnit 5 for testing -->
         <dependency>
-            <groupId>com.github.almasb</groupId>
-            <artifactId>fxgl</artifactId>
-            <version>17.3</version>
-            <exclusions>
-                <!-- Exclude FXGL's JavaFX dependencies to use our own -->
-                <exclusion>
-                    <groupId>org.openjfx</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.9.3</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
