@@ -21,7 +21,7 @@ import gameproject.combat.CombatEngine;
 import gameproject.audio.AudioManager;
 import gameproject.achievements.AchievementManager;
 import gameproject.achievements.Achievement;
-import gameproject.achievements.AchievementListener;
+
 
 /**
  * Enhanced MainController class - JavaFX Controller for "The End The Beginning" game.
@@ -46,10 +46,6 @@ public class MainControllerNew implements Initializable {
     // ===== JAVAFX UI COMPONENT REFERENCES =====
     @FXML private TextArea gameTextArea;    // Main game text display area
     @FXML private TextField inputField;     // Player text input field
-    @FXML private Button submitButton;      // Submit player input
-    @FXML private Button startButton;       // Start new game
-    @FXML private Button statsButton;       // Display player statistics
-    @FXML private Button resetButton;       // Reset/restart game
     @FXML private Label healthLabel;        // Player health display
     @FXML private Label defenseLabel;       // Player defense display
     @FXML private Label attackLabel;        // Player attack display
@@ -63,7 +59,6 @@ public class MainControllerNew implements Initializable {
     private boolean waitingForInput = false;
     private String expectedInputType = "";
     private Monster currentMonster;
-    private int monsterHealth = 0;
     
     // ===== V3.1.0 FEATURES =====
     private Settings settings;              // Game settings
@@ -72,7 +67,6 @@ public class MainControllerNew implements Initializable {
     private String difficulty = "NORMAL";   // Current difficulty
     
     // ===== V4.0.0 ADVANCED SYSTEMS =====
-    private CombatEngine combatEngine;      // Advanced combat system
     private AudioManager audioManager;     // Audio management system
     private AchievementManager achievementManager; // Achievement tracking system
     
@@ -89,21 +83,15 @@ public class MainControllerNew implements Initializable {
         applySettings();
         
         // ===== V4.0.0 INITIALIZE ADVANCED SYSTEMS =====
-        // Initialize combat engine
-        combatEngine = new CombatEngine();
-        
         // Initialize audio manager
         audioManager = AudioManager.getInstance();
         audioManager.setGameStateMusic("menu");
         
         // Initialize achievement system with listener for UI notifications
         achievementManager = AchievementManager.getInstance();
-        achievementManager.addAchievementListener(new AchievementListener() {
-            @Override
-            public void onAchievementUnlocked(Achievement achievement) {
-                showAchievementNotification(achievement);
-                audioManager.playUISound("achievement");
-            }
+        achievementManager.addAchievementListener(achievement -> {
+            showAchievementNotification(achievement);
+            audioManager.playUISound("achievement");
         });
         
         displayWelcomeMessage();
@@ -765,7 +753,6 @@ public class MainControllerNew implements Initializable {
         // Create a monster using the new factory system based on current level
         int dungeonLevel = gameState.getLevel();
         currentMonster = createLevelAppropriateMonster(dungeonLevel);
-        monsterHealth = currentMonster.getHealth();
         
         // Enhanced encounter display
         appendToGameText("⚠️ A " + currentMonster.getName() + " [" + currentMonster.getType() + "] appears!\n");
@@ -826,10 +813,6 @@ public class MainControllerNew implements Initializable {
         processCombatAction(input);
     }
     
-    private void startCombat() {
-        appendToGameText("⚔️ Combat begins!\n\n");
-        executeCombatRound();
-    }
     
     private void executeCombatRound() {
         if (!currentMonster.isAlive()) {
@@ -1093,7 +1076,6 @@ public class MainControllerNew implements Initializable {
         waitingForInput = false;
         expectedInputType = "";
         currentMonster = null;
-        monsterHealth = 0;
         gameTextArea.clear();
         displayWelcomeMessage();
         syncPlayerToGameState();
@@ -1146,14 +1128,6 @@ public class MainControllerNew implements Initializable {
         });
     }
     
-    /**
-     * Shows a single line of game text (adds newline if not present).
-     * 
-     * @param text The text to display
-     */
-    private void showGameTextLine(String text) {
-        showGameText(text.endsWith("\n") ? text : text + "\n");
-    }
     
     /**
      * Legacy method - temporarily kept for compatibility during refactoring.

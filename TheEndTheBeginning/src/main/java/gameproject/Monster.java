@@ -413,10 +413,52 @@ public class Monster {
                 createFireElemental(level),
                 createIceElemental(level)
             };
-        Random rand = new Random();
-        return basicMonsters[rand.nextInt(basicMonsters.length)];
+        }
         
         return basicMonsters[(int)(Math.random() * basicMonsters.length)];
+    }
+    
+    /**
+     * AI decision making for monster actions
+     */
+    public String getAIAction(main.model.Player player) {
+        // Simple AI behavior based on monster type and current situation
+        switch (behavior) {
+            case "aggressive":
+                return "attack";
+            case "defensive":
+                if (getHealthPercentage() < 0.5) {
+                    return "defend";
+                }
+                return "attack";
+            case "cunning":
+                if (Math.random() < 0.3) {
+                    return "special";
+                }
+                return "attack";
+            default:
+                return "attack";
+        }
+    }
+    
+    // Backward compatibility methods
+    public void addStatusEffect(String effectName, int duration) {
+        // Convert string to enum for backward compatibility
+        try {
+            CombatEngine.StatusEffect effect = CombatEngine.StatusEffect.valueOf(effectName.toUpperCase());
+            addStatusEffect(effect, duration);
+        } catch (IllegalArgumentException e) {
+            // Ignore unknown status effects
+        }
+    }
+    
+    public boolean hasStatusEffect(String effectName) {
+        try {
+            CombatEngine.StatusEffect effect = CombatEngine.StatusEffect.valueOf(effectName.toUpperCase());
+            return hasStatusEffect(effect);
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
     }
     
     @Override
