@@ -6,7 +6,7 @@
  * 
  * <h2>Main Classes:</h2>
  * <ul>
- *   <li>{@link main.model.player} - Player character with stats, inventory, and progression</li>
+ *   <li>{@link main.model.Player} - Player character with stats, inventory, and progression</li>
  *   <li>{@link main.model.Item} - Item definitions and properties</li>
  * </ul>
  * 

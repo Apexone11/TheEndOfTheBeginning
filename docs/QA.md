@@ -1,6 +1,6 @@
-# QA Test Scenarios - v3.1.0
+# QA Test Scenarios - v4.0.0
 
-Manual QA scenarios for The End The Beginning v3.1.0
+Manual QA scenarios for The End The Beginning v4.0.0
 
 ## Test Environment Setup
 
@@ -51,7 +51,7 @@ Manual QA scenarios for The End The Beginning v3.1.0
 
 **Date:** ___________  
 **Tester:** ___________  
-**Version:** v3.1.0  
+**Version:** v4.0.0  
 
 **Overall Status:**
 - [ ] All scenarios passed

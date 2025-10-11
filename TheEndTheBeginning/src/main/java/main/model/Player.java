@@ -25,6 +25,23 @@ public class Player {
     private int baseAttack;
     private int baseDefense;
     private int baseMagic;
+    private int agility;        // New stat for dodge/accuracy
+    private int luck;           // New stat for critical hits
+    
+    // Advanced combat stats
+    private int accuracy;       // Hit chance bonus
+    private int criticalChance; // Critical hit chance
+    private int blockChance;    // Damage reduction chance
+    
+    // Equipment slots
+    private Item equippedWeapon;
+    private Item equippedArmor;
+    private Item equippedAccessory;
+    
+    // Magic system
+    private int mana;
+    private int maxMana;
+    private List<String> knownSpells;
     
     // Game progression
     private int dungeonLevel;
@@ -39,30 +56,45 @@ public class Player {
     private int potionsUsed;
     private long totalPlayTime;
     
-    // Status effects and temporary modifiers
-    private Map<String, Integer> statusEffects;
+    // Status effects and temporary modifiers (enhanced)
+    private Map<gameproject.combat.CombatEngine.StatusEffect, Integer> combatStatusEffects;
+    private Map<String, Integer> statusEffects; // Keep for backward compatibility
     private Map<String, Integer> temporaryStats;
     
     /**
      * Enumeration of available player classes with unique stat distributions.
      */
     public enum PlayerClass {
-        WARRIOR("Warrior", 120, 15, 8, 5),
-        MAGE("Mage", 80, 8, 5, 18),
-        ROGUE("Rogue", 100, 12, 12, 10);
+        WARRIOR("Warrior", 120, 15, 8, 5, 8, 6, 85, 15, 25),
+        MAGE("Mage", 80, 8, 5, 18, 12, 10, 90, 10, 5),
+        ROGUE("Rogue", 100, 12, 12, 10, 15, 12, 95, 25, 15),
+        PALADIN("Paladin", 130, 12, 10, 8, 6, 8, 80, 12, 30),
+        ARCHER("Archer", 90, 18, 6, 6, 18, 14, 98, 20, 10),
+        NECROMANCER("Necromancer", 70, 6, 4, 20, 10, 15, 88, 18, 8);
         
         private final String displayName;
         private final int baseHealth;
         private final int baseAttack;
         private final int baseDefense;
         private final int baseMagic;
+        private final int baseAgility;
+        private final int baseLuck;
+        private final int baseAccuracy;
+        private final int baseCritChance;
+        private final int baseBlockChance;
         
-        PlayerClass(String displayName, int health, int attack, int defense, int magic) {
+        PlayerClass(String displayName, int health, int attack, int defense, int magic, 
+                   int agility, int luck, int accuracy, int critChance, int blockChance) {
             this.displayName = displayName;
             this.baseHealth = health;
             this.baseAttack = attack;
             this.baseDefense = defense;
             this.baseMagic = magic;
+            this.baseAgility = agility;
+            this.baseLuck = luck;
+            this.baseAccuracy = accuracy;
+            this.baseCritChance = critChance;
+            this.baseBlockChance = blockChance;
         }
         
         public String getDisplayName() { return displayName; }
@@ -70,6 +102,23 @@ public class Player {
         public int getBaseAttack() { return baseAttack; }
         public int getBaseDefense() { return baseDefense; }
         public int getBaseMagic() { return baseMagic; }
+        public int getBaseAgility() { return baseAgility; }
+        public int getBaseLuck() { return baseLuck; }
+        public int getBaseAccuracy() { return baseAccuracy; }
+        public int getBaseCritChance() { return baseCritChance; }
+        public int getBaseBlockChance() { return baseBlockChance; }
+        
+        public String getDescription() {
+            switch (this) {
+                case WARRIOR: return "Tank with high health and defense. Specializes in blocking and heavy attacks.";
+                case MAGE: return "Master of magical arts with powerful spells but low physical defense.";
+                case ROGUE: return "Agile fighter with high critical hit chance and dodge abilities.";
+                case PALADIN: return "Holy warrior with healing abilities and strong defensive capabilities.";
+                case ARCHER: return "Ranged expert with high accuracy and agility for hit-and-run tactics.";
+                case NECROMANCER: return "Dark magic user who can summon minions and drain life from enemies.";
+                default: return "Unknown class";
+            }
+        }
     }
     
     /**
@@ -92,11 +141,28 @@ public class Player {
         this.baseAttack = playerClass.getBaseAttack();
         this.baseDefense = playerClass.getBaseDefense();
         this.baseMagic = playerClass.getBaseMagic();
+        this.agility = playerClass.getBaseAgility();
+        this.luck = playerClass.getBaseLuck();
+        this.accuracy = playerClass.getBaseAccuracy();
+        this.criticalChance = playerClass.getBaseCritChance();
+        this.blockChance = playerClass.getBaseBlockChance();
+        
+        // Initialize mana system
+        this.maxMana = this.baseMagic * 2;
+        this.mana = this.maxMana;
+        this.knownSpells = new ArrayList<>();
+        initializeStartingSpells();
+        
+        // Initialize equipment slots
+        this.equippedWeapon = null;
+        this.equippedArmor = null;
+        this.equippedAccessory = null;
         
         // Initialize collections
         this.inventory = new ArrayList<>();
         this.achievements = new HashSet<>();
         this.statusEffects = new HashMap<>();
+        this.combatStatusEffects = new HashMap<>();
         this.temporaryStats = new HashMap<>();
         
         // Initialize statistics
@@ -146,25 +212,67 @@ public class Player {
             case WARRIOR -> 20 + (int) (Math.random() * 10);
             case MAGE -> 10 + (int) (Math.random() * 8);
             case ROGUE -> 15 + (int) (Math.random() * 8);
+            case PALADIN -> 25 + (int) (Math.random() * 12);
+            case ARCHER -> 12 + (int) (Math.random() * 6);
+            case NECROMANCER -> 8 + (int) (Math.random() * 6);
         };
         
         int attackIncrease = switch (playerClass) {
             case WARRIOR -> 3 + (int) (Math.random() * 3);
             case MAGE -> 1 + (int) (Math.random() * 2);
             case ROGUE -> 2 + (int) (Math.random() * 3);
+            case PALADIN -> 2 + (int) (Math.random() * 2);
+            case ARCHER -> 4 + (int) (Math.random() * 3);
+            case NECROMANCER -> 1 + (int) (Math.random() * 2);
         };
         
         int defenseIncrease = switch (playerClass) {
             case WARRIOR -> 2 + (int) (Math.random() * 2);
             case MAGE -> 1 + (int) (Math.random() * 1);
             case ROGUE -> 2 + (int) (Math.random() * 2);
+            case PALADIN -> 3 + (int) (Math.random() * 2);
+            case ARCHER -> 1 + (int) (Math.random() * 1);
+            case NECROMANCER -> (int) (Math.random() * 1);
         };
         
         int magicIncrease = switch (playerClass) {
             case WARRIOR -> (int) (Math.random() * 2);
             case MAGE -> 4 + (int) (Math.random() * 4);
             case ROGUE -> 1 + (int) (Math.random() * 2);
+            case PALADIN -> 2 + (int) (Math.random() * 2);
+            case ARCHER -> 1 + (int) (Math.random() * 1);
+            case NECROMANCER -> 5 + (int) (Math.random() * 4);
         };
+        
+        // Increase secondary stats too
+        agility += switch (playerClass) {
+            case WARRIOR -> 1;
+            case MAGE -> 2;
+            case ROGUE -> 3;
+            case PALADIN -> 1;
+            case ARCHER -> 4;
+            case NECROMANCER -> 2;
+        };
+        
+        luck += switch (playerClass) {
+            case WARRIOR -> 1;
+            case MAGE -> 2;
+            case ROGUE -> 3;
+            case PALADIN -> 2;
+            case ARCHER -> 3;
+            case NECROMANCER -> 3;
+        };
+        
+        // Increase mana
+        maxMana += switch (playerClass) {
+            case WARRIOR -> 2;
+            case MAGE -> 8;
+            case ROGUE -> 3;
+            case PALADIN -> 6;
+            case ARCHER -> 2;
+            case NECROMANCER -> 10;
+        };
+        mana = maxMana; // Restore mana on level up
         
         // Apply increases
         maxHealth += healthIncrease;
@@ -187,7 +295,17 @@ public class Player {
      * @return Total attack value
      */
     public int getAttackPower() {
-        int totalAttack = baseAttack + getEquipmentBonus("attack") + getStatusBonus("attack");
+        int totalAttack = baseAttack + (level * 2) + temporaryStats.getOrDefault("attack", 0);
+        
+        // Equipment bonuses
+        if (equippedWeapon != null) {
+            totalAttack += equippedWeapon.getValue();
+        }
+        
+        // Status effect bonuses
+        if (hasStatusEffect(gameproject.combat.CombatEngine.StatusEffect.RAGE)) {
+            totalAttack += 10;
+        }
         
         // Class-specific bonuses at certain levels
         if (playerClass == PlayerClass.WARRIOR && level >= 5) {
@@ -203,7 +321,17 @@ public class Player {
      * @return Total defense value
      */
     public int getDefensePower() {
-        int totalDefense = baseDefense + getEquipmentBonus("defense") + getStatusBonus("defense");
+        int totalDefense = baseDefense + (level * 1) + temporaryStats.getOrDefault("defense", 0);
+        
+        // Equipment bonuses
+        if (equippedArmor != null) {
+            totalDefense += equippedArmor.getValue();
+        }
+        
+        // Status effect bonuses
+        if (hasStatusEffect(gameproject.combat.CombatEngine.StatusEffect.SHIELD)) {
+            totalDefense += 15;
+        }
         
         if (playerClass == PlayerClass.WARRIOR && level >= 3) {
             totalDefense += level / 4; // Warrior defense bonus
@@ -218,7 +346,12 @@ public class Player {
      * @return Total magic value
      */
     public int getMagicPower() {
-        int totalMagic = baseMagic + getEquipmentBonus("magic") + getStatusBonus("magic");
+        int totalMagic = baseMagic + (level * 2);
+        
+        // Equipment bonuses
+        if (equippedAccessory != null && equippedAccessory.getName().contains("Magic")) {
+            totalMagic += equippedAccessory.getValue();
+        }
         
         if (playerClass == PlayerClass.MAGE) {
             totalMagic += level / 2; // Mage magic scaling
@@ -615,6 +748,195 @@ public class Player {
      */
     public double getExperiencePercentage() {
         return (double) experience / experienceToNextLevel;
+    }
+    
+    // ===== ADVANCED COMBAT SYSTEM METHODS =====
+    
+    /**
+     * Initialize starting spells based on class
+     */
+    private void initializeStartingSpells() {
+        switch (playerClass) {
+            case MAGE:
+                knownSpells.add("Fireball");
+                knownSpells.add("Heal");
+                break;
+            case PALADIN:
+                knownSpells.add("Holy Strike");
+                knownSpells.add("Divine Heal");
+                break;
+            case NECROMANCER:
+                knownSpells.add("Dark Bolt");
+                knownSpells.add("Life Drain");
+                break;
+            default:
+                // Other classes start with no spells
+                break;
+        }
+    }
+    
+    // New stat getters and setters
+    public int getAgility() { return agility + temporaryStats.getOrDefault("agility", 0); }
+    public int getLuck() { return luck + temporaryStats.getOrDefault("luck", 0); }
+    public int getAccuracy() { return accuracy + temporaryStats.getOrDefault("accuracy", 0); }
+    public int getCriticalChance() { return criticalChance + temporaryStats.getOrDefault("criticalChance", 0); }
+    public int getBlockChance() { return blockChance + temporaryStats.getOrDefault("blockChance", 0); }
+    
+    public void setAgility(int agility) { this.agility = agility; }
+    public void setLuck(int luck) { this.luck = luck; }
+    public void setAccuracy(int accuracy) { this.accuracy = accuracy; }
+    public void setCriticalChance(int criticalChance) { this.criticalChance = criticalChance; }
+    public void setBlockChance(int blockChance) { this.blockChance = blockChance; }
+    
+    public void setMana(int mana) { this.mana = Math.max(0, Math.min(mana, maxMana)); }
+    public void setMaxMana(int maxMana) { this.maxMana = maxMana; }
+    
+    // Mana system
+    public int getMana() { return mana; }
+    public int getMaxMana() { return maxMana; }
+    public boolean canCastSpell(String spellName) {
+        int manaCost = getSpellManaCost(spellName);
+        return mana >= manaCost && knownSpells.contains(spellName);
+    }
+    
+    public boolean castSpell(String spellName) {
+        if (!canCastSpell(spellName)) return false;
+        
+        int manaCost = getSpellManaCost(spellName);
+        mana -= manaCost;
+        return true;
+    }
+    
+    public void restoreMana(int amount) {
+        mana = Math.min(maxMana, mana + amount);
+    }
+    
+    private int getSpellManaCost(String spellName) {
+        switch (spellName) {
+            case "Fireball": return 8;
+            case "Heal": return 6;
+            case "Holy Strike": return 10;
+            case "Divine Heal": return 12;
+            case "Dark Bolt": return 7;
+            case "Life Drain": return 9;
+            default: return 5;
+        }
+    }
+    
+    // Equipment system
+    public Item getEquippedWeapon() { return equippedWeapon; }
+    public Item getEquippedArmor() { return equippedArmor; }
+    public Item getEquippedAccessory() { return equippedAccessory; }
+    
+    public boolean equipWeapon(Item weapon) {
+        if (weapon.getType() != Item.ItemType.WEAPON) return false;
+        
+        if (equippedWeapon != null) {
+            inventory.add(equippedWeapon);
+        }
+        equippedWeapon = weapon;
+        inventory.remove(weapon);
+        return true;
+    }
+    
+    public boolean equipArmor(Item armor) {
+        if (armor.getType() != Item.ItemType.ARMOR) return false;
+        
+        if (equippedArmor != null) {
+            inventory.add(equippedArmor);
+        }
+        equippedArmor = armor;
+        inventory.remove(armor);
+        return true;
+    }
+    
+    public boolean equipAccessory(Item accessory) {
+        if (accessory.getType() != Item.ItemType.ACCESSORY) return false;
+        
+        if (equippedAccessory != null) {
+            inventory.add(equippedAccessory);
+        }
+        equippedAccessory = accessory;
+        inventory.remove(accessory);
+        return true;
+    }
+    
+    // Enhanced status effect system
+    public Map<gameproject.combat.CombatEngine.StatusEffect, Integer> getStatusEffects() {
+        return new HashMap<>(combatStatusEffects);
+    }
+    
+    public boolean hasStatusEffect(gameproject.combat.CombatEngine.StatusEffect effect) {
+        return combatStatusEffects.containsKey(effect);
+    }
+    
+    public void addStatusEffect(gameproject.combat.CombatEngine.StatusEffect effect, int duration) {
+        combatStatusEffects.put(effect, Math.max(duration, combatStatusEffects.getOrDefault(effect, 0)));
+    }
+    
+    public void removeStatusEffect(gameproject.combat.CombatEngine.StatusEffect effect) {
+        combatStatusEffects.remove(effect);
+    }
+    
+    public void updateStatusEffect(gameproject.combat.CombatEngine.StatusEffect effect, int duration) {
+        if (duration <= 0) {
+            removeStatusEffect(effect);
+        } else {
+            combatStatusEffects.put(effect, duration);
+        }
+    }
+    
+    // Enhanced combat calculations will be handled by modifying existing methods
+    
+    public List<String> getKnownSpells() {
+        return new ArrayList<>(knownSpells);
+    }
+    
+    public void learnSpell(String spellName) {
+        if (!knownSpells.contains(spellName)) {
+            knownSpells.add(spellName);
+        }
+    }
+    
+    // Equipment methods for string compatibility (used by tests)
+    public void equipWeapon(String weaponName) {
+        // Create a basic Item for compatibility - using correct constructor
+        Item weapon = new Item(weaponName, weaponName + " description", Item.ItemType.WEAPON, 10, false);
+        equipWeapon(weapon);
+    }
+    
+    public void equipArmor(String armorName) {
+        // Create a basic Item for compatibility - using correct constructor  
+        Item armor = new Item(armorName, armorName + " description", Item.ItemType.ARMOR, 8, false);
+        equipArmor(armor);
+    }
+    
+    public void equipAccessory(String accessoryName) {
+        // Create a basic Item for compatibility - using correct constructor
+        Item accessory = new Item(accessoryName, accessoryName + " description", Item.ItemType.ACCESSORY, 5, false);
+        equipAccessory(accessory);
+    }
+    
+    // Combat calculation methods
+    public double calculateHitChance() {
+        return Math.min(0.95, 0.75 + (accuracy / 100.0));
+    }
+    
+    public double calculateCriticalChance() {
+        return Math.min(0.50, (luck + criticalChance) / 200.0);
+    }
+    
+    // Status effect compatibility methods
+    public void addStatusEffect(String effectName, int duration) {
+        statusEffects.put(effectName, duration);
+    }
+    
+    public boolean hasStatusEffect(String effectName) {
+        return statusEffects.containsKey(effectName);
+    }
+    
+    public int getStatusEffectTurns(String effectName) {
+        return statusEffects.getOrDefault(effectName, 0);
     }
     
     /**

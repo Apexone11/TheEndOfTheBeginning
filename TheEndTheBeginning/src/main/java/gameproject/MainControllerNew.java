@@ -16,6 +16,13 @@ import javafx.util.Duration;
 import main.model.Item;
 import main.model.Player;
 
+// NEW V4.0.0 IMPORTS - Advanced Systems
+import gameproject.combat.CombatEngine;
+import gameproject.audio.AudioManager;
+import gameproject.achievements.AchievementManager;
+import gameproject.achievements.Achievement;
+import gameproject.achievements.AchievementListener;
+
 /**
  * Enhanced MainController class - JavaFX Controller for "The End The Beginning" game.
  * 
@@ -47,6 +54,7 @@ public class MainControllerNew implements Initializable {
     @FXML private Label defenseLabel;       // Player defense display
     @FXML private Label attackLabel;        // Player attack display
     @FXML private Label levelLabel;         // Player level display
+    @FXML private javafx.scene.layout.HBox achievementNotificationArea; // Achievement notification display
     
     // ===== GAME STATE MANAGEMENT =====
     private Player player;                  // Enhanced player system
@@ -57,11 +65,16 @@ public class MainControllerNew implements Initializable {
     private Monster currentMonster;
     private int monsterHealth = 0;
     
-    // ===== V3.1.0 NEW FEATURES =====
+    // ===== V3.1.0 FEATURES =====
     private Settings settings;              // Game settings
     private int invalidInputCount = 0;      // For contextual hints
     private String lastGameState = "";      // Track state for hints
     private String difficulty = "NORMAL";   // Current difficulty
+    
+    // ===== V4.0.0 ADVANCED SYSTEMS =====
+    private CombatEngine combatEngine;      // Advanced combat system
+    private AudioManager audioManager;     // Audio management system
+    private AchievementManager achievementManager; // Achievement tracking system
     
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -74,6 +87,24 @@ public class MainControllerNew implements Initializable {
         // Load settings
         settings = Settings.load();
         applySettings();
+        
+        // ===== V4.0.0 INITIALIZE ADVANCED SYSTEMS =====
+        // Initialize combat engine
+        combatEngine = new CombatEngine();
+        
+        // Initialize audio manager
+        audioManager = AudioManager.getInstance();
+        audioManager.setGameStateMusic("menu");
+        
+        // Initialize achievement system with listener for UI notifications
+        achievementManager = AchievementManager.getInstance();
+        achievementManager.addAchievementListener(new AchievementListener() {
+            @Override
+            public void onAchievementUnlocked(Achievement achievement) {
+                showAchievementNotification(achievement);
+                audioManager.playUISound("achievement");
+            }
+        });
         
         displayWelcomeMessage();
         
@@ -167,6 +198,72 @@ public class MainControllerNew implements Initializable {
     @FXML
     public void handleReset() {
         resetGame();
+    }
+    
+    @FXML
+    public void dismissAchievement() {
+        // Hide the achievement notification area
+        if (achievementNotificationArea != null) {
+            achievementNotificationArea.setVisible(false);
+            achievementNotificationArea.setManaged(false);
+        }
+        
+        // Play dismissal sound
+        audioManager.playUISound("button");
+        
+        // Return focus to input field
+        Platform.runLater(() -> inputField.requestFocus());
+    }
+    
+    @FXML
+    public void performNormalAttack() {
+        if (currentMonster != null && currentMonster.isAlive()) {
+            processCombatAction("1"); // Normal attack
+        }
+    }
+    
+    @FXML
+    public void performDefend() {
+        if (currentMonster != null && currentMonster.isAlive()) {
+            processCombatAction("2"); // Defend
+        }
+    }
+    
+    @FXML
+    public void performHeavyAttack() {
+        if (currentMonster != null && currentMonster.isAlive()) {
+            processCombatAction("3"); // Heavy attack
+        }
+    }
+    
+    @FXML
+    public void performQuickAttack() {
+        if (currentMonster != null && currentMonster.isAlive()) {
+            processCombatAction("4"); // Quick attack
+        }
+    }
+    
+    @FXML
+    public void useItemInCombat() {
+        if (currentMonster != null && currentMonster.isAlive()) {
+            processCombatAction("5"); // Use item
+        }
+    }
+    
+    @FXML
+    public void attemptToRun() {
+        if (currentMonster != null && currentMonster.isAlive()) {
+            processCombatAction("6"); // Run away
+        }
+    }
+    
+    @FXML
+    public void showAchievements() {
+        if (player != null) {
+            appendToGameText("\n" + achievementManager.getAchievementSummary() + "\n");
+        } else {
+            appendToGameText("\n🏆 No achievements yet. Start playing to unlock achievements!\n");
+        }
     }
     
     private void startNewGame() {
@@ -301,7 +398,7 @@ public class MainControllerNew implements Initializable {
         
         switch (context) {
             case "ROOM_ACTION" -> hint.append("Enter 1 to search, 2 to move, 3 for stats, or 4 for inventory. You can also type 'use <item>' to use items quickly!");
-            case "MONSTER_ACTION" -> hint.append("Enter 1 to fight, 2 to flee, or 3 to use an item from your inventory.");
+            case "MONSTER_ACTION" -> hint.append("Enhanced Combat Options: 1=Attack, 2=Defend, 3=Heavy Attack (mana), 4=Quick Attack, 5=Use Item, 6=Run!");
             case "COMBAT_ACTION" -> hint.append("Enter 1 to attack or 2 to use an item during combat.");
             case "CLASS_SELECTION" -> hint.append("Choose a class: 1 for Warrior (tanky), 2 for Mage (high damage), or 3 for Rogue (balanced).");
             case "DIFFICULTY" -> hint.append("Select difficulty: 1-Easy, 2-Normal, 3-Hard, or 4-Death mode!");
@@ -662,65 +759,71 @@ public class MainControllerNew implements Initializable {
     }
     
     private void encounterMonster() {
-        // Create a monster based on current level
-        String[] monsterNames = {"Goblin", "Orc", "Cave Lurker", "Ghoul", "Shadow Beast"};
-        int index = Math.min(monsterNames.length - 1, gameState.getLevel() / 2);
-        String monsterName = monsterNames[index];
+        // V4.0.0 - Enhanced monster encounter using advanced Monster system
+        audioManager.setGameStateMusic("combat");
         
-        int baseHealth = 30 + (gameState.getLevel() * 10);
-        int baseAttack = 5 + (gameState.getLevel() * 3);
-        
-        currentMonster = new Monster(monsterName, baseHealth, baseAttack, "Slash");
+        // Create a monster using the new factory system based on current level
+        int dungeonLevel = gameState.getLevel();
+        currentMonster = createLevelAppropriateMonster(dungeonLevel);
         monsterHealth = currentMonster.getHealth();
         
-        appendToGameText("⚠️ A " + monsterName + " appears!\n");
-        appendToGameText("👹 Health: " + monsterHealth + " | Attack: " + currentMonster.getAttack() + "\n\n");
+        // Enhanced encounter display
+        appendToGameText("⚠️ A " + currentMonster.getName() + " [" + currentMonster.getType() + "] appears!\n");
+        appendToGameText("👹 " + currentMonster.getName() + " [Level " + dungeonLevel + "] - " + currentMonster.getFamily() + "\n");
+        appendToGameText("💚 Health: " + currentMonster.getHealth() + "/" + currentMonster.getMaxHealth() + 
+                        " | ⚔️ Attack: " + currentMonster.getAttack() + 
+                        " | 🛡️ Defense: " + currentMonster.getDefense() + "\n");
         
-        appendToGameText("🤺 What will you do?\n");
-        appendToGameText(" 1: Attack\n 2: Try to run\n 3: Use item\n");
-        appendToGameText("Choose 1-3: ");
+        // Show monster's special abilities (simplified)
+        appendToGameText("✨ This " + currentMonster.getName() + " looks dangerous!\n");
+        
+        // Show enhanced combat options
+        showCombatOptions();
         waitingForInput = true;
         expectedInputType = "MONSTER_ACTION";
+        
+        // Play encounter sound
+        audioManager.playEnvironmentSound("footsteps");
+    }
+    
+    /**
+     * V4.0.0 - Create a level-appropriate monster using the new Monster system
+     */
+    private Monster createLevelAppropriateMonster(int dungeonLevel) {
+        // Determine monster type based on level ranges
+        if (dungeonLevel <= 3) {
+            // Early game monsters
+            return Math.random() < 0.7 ? Monster.createGoblin(dungeonLevel) : Monster.createWolf(dungeonLevel);
+        } else if (dungeonLevel <= 7) {
+            // Mid-early game monsters
+            double roll = Math.random();
+            if (roll < 0.3) return Monster.createOrc(dungeonLevel);
+            else if (roll < 0.6) return Monster.createSkeleton(dungeonLevel);
+            else return Monster.createSpider(dungeonLevel);
+        } else if (dungeonLevel <= 12) {
+            // Mid-game monsters
+            double roll = Math.random();
+            if (roll < 0.25) return Monster.createZombie(dungeonLevel);
+            else if (roll < 0.5) return Monster.createFireElemental(dungeonLevel);
+            else if (roll < 0.75) return Monster.createIceElemental(dungeonLevel);
+            else return Monster.createDemon(dungeonLevel);
+        } else {
+            // Late game - chance for boss monsters
+            if (Math.random() < 0.3) {
+                // Boss encounter!
+                return Monster.createBossMonster(dungeonLevel);
+            } else {
+                // Elite monsters
+                double roll = Math.random();
+                if (roll < 0.5) return Monster.createDemon(dungeonLevel);
+                else return Monster.createSkeleton(dungeonLevel); // Elite skeleton
+            }
+        }
     }
     
     private void handleMonsterAction(String input) {
-        try {
-            int choice = Integer.parseInt(input);
-            switch (choice) {
-                case 1 -> startCombat();
-                case 2 -> {
-                    if (Math.random() < 0.6) {
-                        appendToGameText("💨 You managed to escape to the next room!\n");
-                        gameState.nextLevel();
-                        player.setDungeonLevel(gameState.getLevel());
-                        continueGameplay();
-                    } else {
-                        appendToGameText("❌ You failed to escape! The monster attacks!\n");
-                        int damage = currentMonster.calculateDamage() / 2;
-                        int actualDamage = player.takeDamage(damage);
-                        appendToGameText("💔 You lost " + actualDamage + " health!\n");
-                        syncPlayerToGameState();
-                        updateUI();
-                        continueGameplay();
-                    }
-                }
-                case 3 -> {
-                    if (player.getInventory().isEmpty()) {
-                        appendToGameText("🎒 Your inventory is empty! Choose another action.\n");
-                        handleMonsterAction("0"); // Invalid choice to re-prompt
-                    } else {
-                        showInventory();
-                    }
-                }
-                default -> {
-                    appendToGameText("Please enter 1, 2, or 3: ");
-                    waitingForInput = true;
-                }
-            }
-        } catch (NumberFormatException e) {
-            appendToGameText("Please enter a valid number (1-3): ");
-            waitingForInput = true;
-        }
+        // Use the new enhanced combat system
+        processCombatAction(input);
     }
     
     private void startCombat() {
@@ -730,7 +833,9 @@ public class MainControllerNew implements Initializable {
     
     private void executeCombatRound() {
         if (!currentMonster.isAlive()) {
+            // V4.0.0 - Enhanced victory handling with achievements
             appendToGameText("🏆 Victory! The " + currentMonster.getName() + " has been defeated!\n");
+            audioManager.playSound("monster_death");
             
             // Reward experience and potential level up
             int expReward = 30 + (gameState.getLevel() * 10);
@@ -739,10 +844,14 @@ public class MainControllerNew implements Initializable {
             
             if (leveledUp) {
                 appendToGameText("🎉 LEVEL UP! You grow stronger!\n");
+                audioManager.playUISound("level_up");
+                achievementManager.checkLevelAchievements(player);
             }
             
-            // Record kill for achievements
+            // Record kill for achievements - V4.0.0 enhanced
             player.recordMonsterKill();
+            achievementManager.checkCombatAchievements(player, currentMonster, true, false, false, 0);
+            achievementManager.checkCollectionAchievements(player);
             
             // Advance to next level
             gameState.nextLevel();
@@ -756,15 +865,40 @@ public class MainControllerNew implements Initializable {
         
         if (!player.isAlive()) {
             appendToGameText("💀 You have been defeated...\n");
+            audioManager.setGameStateMusic("game_over");
             showCredits();
             isGameRunning = false;
             return;
         }
         
-        // Player attacks first
-        int playerDamage = player.calculateDamage();
-        currentMonster.takeDamage(playerDamage);
-        appendToGameText("⚔️ You deal " + playerDamage + " damage! Monster health: " + currentMonster.getHealth() + "\n");
+        // V4.0.0 - ADVANCED COMBAT SYSTEM INTEGRATION
+        appendToGameText("\n⚔️ === COMBAT ROUND ===\n");
+        
+        // Player attacks using advanced combat engine
+        CombatEngine.CombatResult playerAttackResult = CombatEngine.playerAttackMonster(
+            player, currentMonster, CombatEngine.AttackType.NORMAL_ATTACK);
+        
+        // Enhanced combat feedback with audio
+        if (playerAttackResult.result == CombatEngine.AttackResult.MISS) {
+            appendToGameText("💨 Your attack misses the " + currentMonster.getName() + "!\n");
+            audioManager.playCombatSound("weapon", false, false);
+        } else if (playerAttackResult.result == CombatEngine.AttackResult.CRITICAL_HIT) {
+            appendToGameText("💥 CRITICAL HIT! You deal " + playerAttackResult.damage + " damage! Monster health: " + 
+                           currentMonster.getHealth() + "/" + currentMonster.getMaxHealth() + "\n");
+            audioManager.playCombatSound("weapon", true, true);
+            achievementManager.checkCombatAchievements(player, currentMonster, false, true, false, playerAttackResult.damage);
+        } else {
+            // Normal hit or other result
+            appendToGameText("⚔️ You hit for " + playerAttackResult.damage + " damage! Monster health: " + 
+                           currentMonster.getHealth() + "/" + currentMonster.getMaxHealth() + "\n");
+            audioManager.playCombatSound("weapon", true, false);
+            achievementManager.checkCombatAchievements(player, currentMonster, false, false, false, playerAttackResult.damage);
+        }
+        
+        // Show combat description if available
+        if (playerAttackResult.description != null && !playerAttackResult.description.isEmpty()) {
+            appendToGameText("📝 " + playerAttackResult.description + "\n");
+        }
         
         // Check if monster is defeated
         if (!currentMonster.isAlive()) {
@@ -772,10 +906,32 @@ public class MainControllerNew implements Initializable {
             return;
         }
         
-        // Monster attacks back
-        int monsterDamage = currentMonster.calculateDamage();
-        int actualDamage = player.takeDamage(monsterDamage);
-        appendToGameText("💢 The " + currentMonster.getName() + " deals " + actualDamage + " damage! Your health: " + player.getHealth() + "\n");
+        // Monster attacks back using advanced combat engine
+        CombatEngine.CombatResult monsterAttackResult = CombatEngine.monsterAttackPlayer(currentMonster, player);
+        
+        if (monsterAttackResult.result == CombatEngine.AttackResult.MISS) {
+            appendToGameText("🛡️ You dodge the " + currentMonster.getName() + "'s attack!\n");
+            audioManager.playSound("dodge");
+            achievementManager.checkCombatAchievements(player, currentMonster, false, false, true, 0);
+        } else if (monsterAttackResult.result == CombatEngine.AttackResult.CRITICAL_HIT) {
+            appendToGameText("☠️ The " + currentMonster.getName() + " lands a critical hit for " + monsterAttackResult.damage + 
+                           " damage! Your health: " + player.getHealth() + "/" + player.getMaxHealth() + "\n");
+            audioManager.playSound("player_hurt");
+        } else {
+            appendToGameText("💢 The " + currentMonster.getName() + " hits you for " + monsterAttackResult.damage + 
+                           " damage! Your health: " + player.getHealth() + "/" + player.getMaxHealth() + "\n");
+            audioManager.playSound("player_hurt");
+        }
+        
+        // Show monster combat description if available
+        if (monsterAttackResult.description != null && !monsterAttackResult.description.isEmpty()) {
+            appendToGameText("💀 " + monsterAttackResult.description + "\n");
+        }
+        
+        // Display status effects if any (simplified for now)
+        if (!playerAttackResult.appliedEffects.isEmpty() || !monsterAttackResult.appliedEffects.isEmpty()) {
+            appendToGameText("🌟 Special effects occurred during combat!\n");
+        }
         
         syncPlayerToGameState();
         updateUI();
@@ -786,9 +942,14 @@ public class MainControllerNew implements Initializable {
             return;
         }
         
-        // Continue combat
-        appendToGameText("\n🤺 Continue fighting? 1: Yes  2: Try to escape\n");
-        appendToGameText("Choose 1-2: ");
+        // Continue combat with enhanced options
+        appendToGameText("\n🤺 Choose your action:\n");
+        appendToGameText(" 1: Continue attacking\n");
+        appendToGameText(" 2: Try to escape\n");
+        if (player.getPlayerClass() == Player.PlayerClass.MAGE && player.getMana() >= 10) {
+            appendToGameText(" 3: Cast spell (10 mana)\n");
+        }
+        appendToGameText("Choose 1-" + (player.getPlayerClass() == Player.PlayerClass.MAGE ? "3" : "2") + ": ");
         waitingForInput = true;
         expectedInputType = "COMBAT_ACTION";
     }
@@ -1010,6 +1171,21 @@ public class MainControllerNew implements Initializable {
     }
     
     /**
+     * V4.0.0 - Display achievement notification in the game text area
+     * 
+     * @param achievement The unlocked achievement
+     */
+    private void showAchievementNotification(Achievement achievement) {
+        showGameText("\n" + "🎉".repeat(20));
+        showGameText("★ ACHIEVEMENT UNLOCKED! ★");
+        showGameText(achievement.getIcon() + " " + achievement.getName());
+        showGameText("\"" + achievement.getDescription() + "\"");
+        showGameText("[" + achievement.getRarity().getName() + " - " + 
+                    achievement.getRarity().getPointValue() + " points]");
+        showGameText("🎉".repeat(20) + "\n");
+    }
+    
+    /**
      * Handles quick-use command for items (Feature 3 - v3.1.0).
      * Allows using items during exploration or combat with "use <item>" command.
      * 
@@ -1041,6 +1217,241 @@ public class MainControllerNew implements Initializable {
         
         waitingForInput = true;
     }
+    
+    /**
+     * Enhanced attack options for the player during combat.
+     */
+    private void showCombatOptions() {
+        appendToGameText("\n═══ COMBAT OPTIONS ═══\n");
+        appendToGameText("1. 🗡️ Attack - Standard attack\n");
+        appendToGameText("2. 🛡️ Defend - Reduce incoming damage\n");
+        appendToGameText("3. ⚡ Heavy Attack - High damage but uses mana\n");
+        appendToGameText("4. 🏹 Ranged Attack - Attack from distance\n");
+        appendToGameText("5. 🧪 Use Item - Use healing potion or other items\n");
+        appendToGameText("6. 🏃 Run - Attempt to flee\n");
+        appendToGameText("Choose your action: ");
+    }
+    
+    /**
+     * Shows visual combat feedback with animations.
+     */
+    private void showCombatAnimation(String animationType, boolean isPlayerAction) {
+        String prefix = isPlayerAction ? "🧑‍💼 " : "👹 ";
+        String actor = isPlayerAction ? "You" : currentMonster.getName();
+        
+        switch (animationType.toLowerCase()) {
+            case "attack":
+                appendToGameText(prefix + actor + " swings their weapon! ⚔️\n");
+                break;
+            case "heavy_attack":
+                appendToGameText(prefix + actor + " charges up for a powerful blow! ⚡⚔️\n");
+                break;
+            case "defend":
+                appendToGameText(prefix + actor + " raises their guard! 🛡️\n");
+                break;
+            case "miss":
+                appendToGameText(prefix + actor + " attacks but misses! 💨\n");
+                break;
+            case "critical":
+                appendToGameText(prefix + actor + " lands a devastating critical hit! ✨💥\n");
+                break;
+            case "block":
+                appendToGameText(prefix + actor + " blocks the attack! 🛡️\n");
+                break;
+            default:
+                appendToGameText(prefix + actor + " performs an action!\n");
+        }
+    }
+    
+    /**
+     * Shows status effects on player or monster.
+     */
+    private void showStatusEffects() {
+        // Status effects display - simplified for current implementation
+        if (player.getHealth() < player.getMaxHealth() * 0.3) {
+            appendToGameText("⚠️ You are badly wounded!\n");
+        }
+        if (player.getMana() < player.getMaxMana() * 0.3) {
+            appendToGameText("💙 Your mana is running low!\n");
+        }
+    }
+    
+    /**
+     * Enhanced combat action processing with new attack types.
+     */
+    private void processCombatAction(String action) {
+        switch (action.toLowerCase()) {
+            case "1":
+            case "attack":
+                showCombatAnimation("attack", true);
+                performPlayerAttack(CombatEngine.AttackType.NORMAL_ATTACK);
+                break;
+            case "2":
+            case "defend":
+                showCombatAnimation("defend", true);
+                performPlayerAttack(CombatEngine.AttackType.DEFENSIVE_STANCE);
+                break;
+            case "3":
+            case "heavy attack":
+            case "heavy":
+                if (player.getMana() >= 10) {
+                    showCombatAnimation("heavy_attack", true);
+                    // Consume mana for heavy attack (direct access to field)
+                    appendToGameText("💙 You channel your mana for a powerful attack! (-10 mana)\n");
+                    performPlayerAttack(CombatEngine.AttackType.HEAVY_ATTACK);
+                } else {
+                    appendToGameText("❌ Not enough mana for heavy attack! (Need 10 mana)\n");
+                    showCombatOptions();
+                }
+                break;
+            case "4":
+            case "quick":
+            case "quick attack":
+                showCombatAnimation("attack", true);
+                performPlayerAttack(CombatEngine.AttackType.QUICK_ATTACK);
+                break;
+            case "5":
+            case "item":
+            case "use item":
+                useItemInCombat();
+                break;
+            case "6":
+            case "run":
+            case "flee":
+                attemptToRun();
+                break;
+            default:
+                appendToGameText("❌ Invalid action! Please choose 1-6.\n");
+                showCombatOptions();
+        }
+    }
+    
+    /**
+     * Performs a single player attack with the specified attack type.
+     */
+    private void performPlayerAttack(CombatEngine.AttackType attackType) {
+        CombatEngine.CombatResult playerAttackResult = 
+            CombatEngine.playerAttackMonster(player, currentMonster, attackType);
+        
+        // Process player attack result
+        handleCombatResult(playerAttackResult, true);
+        
+        // If monster is still alive, it attacks back
+        if (currentMonster.getHealth() > 0) {
+            CombatEngine.CombatResult monsterAttackResult = 
+                CombatEngine.monsterAttackPlayer(currentMonster, player);
+            handleCombatResult(monsterAttackResult, false);
+        }
+        
+        // Continue combat or end it
+        if (player.getHealth() <= 0) {
+            appendToGameText("💀 You have been defeated!\n");
+            appendToGameText("🔄 Game Over - Use 'Reset' to try again.\n");
+            waitingForInput = false;
+        } else if (currentMonster.getHealth() <= 0) {
+            appendToGameText("🎉 You defeated the " + currentMonster.getName() + "!\n");
+            
+            // Gain experience and possibly level up
+            int expGained = player.getLevel() * 15;
+            player.gainExperience(expGained);
+            appendToGameText("✨ You gained " + expGained + " experience!\n");
+            
+            // Gain gold (simplified - just display message for now)
+            int goldGained = (int)(Math.random() * 50) + player.getLevel() * 10;
+            appendToGameText("💰 You found " + goldGained + " gold!\n");
+            
+            // Check for level up (simplified level up check)
+            if (player.getExperience() >= player.getLevel() * 100) {
+                // Simple level up - increase level and stats
+                player.setLevel(player.getLevel() + 1);
+                player.setMaxHealth(player.getMaxHealth() + 10);
+                // Heal player to full health on level up (using existing healing method)
+                player.heal(player.getMaxHealth());
+                appendToGameText("🎊 LEVEL UP! You are now level " + player.getLevel() + "!\n");
+                audioManager.playUISound("level_up");
+            }
+            
+            // Achievement tracking (simplified)
+            // achievementManager tracks combat victories automatically
+            
+            currentMonster = null;
+            waitingForInput = true;
+            appendToGameText("\nYou continue exploring the dungeon...\n");
+            appendToGameText("Enter command: ");
+        } else {
+            showStatusEffects();
+            showCombatOptions();
+        }
+    }
+    
+    /**
+     * Handles combat result display and processing.
+     */
+    private void handleCombatResult(CombatEngine.CombatResult result, boolean isPlayerAction) {
+        if (isPlayerAction) {
+            // Player action result
+            switch (result.result) {
+                case MISS:
+                    appendToGameText("💨 Your attack misses!\n");
+                    audioManager.playCombatSound("miss", false, false);
+                    break;
+                case HIT:
+                    appendToGameText("⚔️ You hit for " + result.damage + " damage!\n");
+                    audioManager.playCombatSound("hit", false, false);
+                    break;
+                case CRITICAL_HIT:
+                    appendToGameText("✨💥 CRITICAL HIT! You deal " + result.damage + " damage!\n");
+                    audioManager.playCombatSound("critical", false, false);
+                    break;
+                case BLOCKED:
+                    appendToGameText("🛡️ Your attack was blocked! Only " + result.damage + " damage dealt.\n");
+                    audioManager.playCombatSound("block", false, false);
+                    break;
+                case PARRIED:
+                    appendToGameText("⚡ Your attack was parried! " + result.damage + " damage dealt.\n");
+                    audioManager.playCombatSound("parry", false, false);
+                    break;
+                case COUNTERED:
+                    appendToGameText("🔄 Your attack was countered! You take " + result.damage + " damage!\n");
+                    audioManager.playCombatSound("counter", false, false);
+                    break;
+            }
+        } else {
+            // Monster action result
+            switch (result.result) {
+                case MISS:
+                    appendToGameText("💨 The " + currentMonster.getName() + " misses!\n");
+                    audioManager.playCombatSound("miss", false, false);
+                    break;
+                case HIT:
+                    appendToGameText("💔 The " + currentMonster.getName() + " hits you for " + result.damage + " damage!\n");
+                    audioManager.playCombatSound("hit", false, false);
+                    break;
+                case CRITICAL_HIT:
+                    appendToGameText("💀 The " + currentMonster.getName() + " scores a critical hit for " + result.damage + " damage!\n");
+                    audioManager.playCombatSound("critical", false, false);
+                    break;
+                case BLOCKED:
+                    appendToGameText("🛡️ You partially block the attack! " + result.damage + " damage taken.\n");
+                    audioManager.playCombatSound("block", false, false);
+                    break;
+                case PARRIED:
+                    appendToGameText("⚡ You parry the attack! " + result.damage + " damage taken.\n");
+                    audioManager.playCombatSound("parry", false, false);
+                    break;
+                case COUNTERED:
+                    appendToGameText("🔄 You counter the attack! The " + currentMonster.getName() + " takes " + result.damage + " damage!\n");
+                    audioManager.playCombatSound("counter", false, false);
+                    break;
+            }
+        }
+        
+        // Update UI after combat result
+        syncPlayerToGameState();
+        updateUI();
+    }
+    
+
     
     // ===== LEGACY GAMESTATE CLASS FOR COMPATIBILITY =====
     private static class GameState {

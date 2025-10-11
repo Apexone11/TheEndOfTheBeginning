@@ -385,6 +385,192 @@ HBox {
     -fx-animation: pulse 1.5s infinite;
 }
 
+/* ===== v4.0.0 ENHANCED UI STYLES ===== */
+
+/* Progress Bar Styles */
+.health-progress {
+    -fx-accent: #dc143c;
+    -fx-background-color: rgba(220, 20, 60, 0.3);
+    -fx-background-radius: 10px;
+    -fx-background-insets: 0;
+}
+
+.health-progress .bar {
+    -fx-background-color: linear-gradient(to right, #ff4444, #dc143c);
+    -fx-background-radius: 10px;
+    -fx-background-insets: 0;
+    -fx-padding: 3px;
+}
+
+.mana-progress {
+    -fx-accent: #4169e1;
+    -fx-background-color: rgba(65, 105, 225, 0.3);
+    -fx-background-radius: 10px;
+    -fx-background-insets: 0;
+}
+
+.mana-progress .bar {
+    -fx-background-color: linear-gradient(to right, #6495ed, #4169e1);
+    -fx-background-radius: 10px;
+    -fx-background-insets: 0;
+    -fx-padding: 3px;
+}
+
+.exp-progress {
+    -fx-accent: #ffd700;
+    -fx-background-color: rgba(255, 215, 0, 0.3);
+    -fx-background-radius: 10px;
+    -fx-background-insets: 0;
+}
+
+.exp-progress .bar {
+    -fx-background-color: linear-gradient(to right, #ffff44, #ffd700);
+    -fx-background-radius: 10px;
+    -fx-background-insets: 0;
+    -fx-padding: 3px;
+}
+
+/* Combat Button Styles */
+.combat-button {
+    -fx-background-color: linear-gradient(to bottom, #4a4a4a, #2a2a2a);
+    -fx-border-color: -fx-accent;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-padding: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 4, 0.3, 0, 2);
+    -fx-cursor: hand;
+}
+
+.combat-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5a5a5a, #3a3a3a);
+    -fx-border-color: -fx-accent-hover;
+    -fx-effect: dropshadow(gaussian, -fx-glow-gold, 8, 0.6, 0, 0);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.combat-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+    -fx-translate-y: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 2, 0.5, 0, 1);
+}
+
+/* Achievement Button Style */
+.achievements-button {
+    -fx-background-color: linear-gradient(to bottom, #b8860b, #8b6914);
+    -fx-border-color: #ffd700;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-padding: 8px 12px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.5), 6, 0.5, 0, 2);
+    -fx-cursor: hand;
+}
+
+.achievements-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #daa520, #b8860b);
+    -fx-effect: dropshadow(gaussian, rgba(255, 215, 0, 0.8), 10, 0.7, 0, 2);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Status Effect Labels */
+.status-effect-label {
+    -fx-background-color: rgba(50, 50, 50, 0.8);
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 10px;
+    -fx-padding: 3px 6px;
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-width: 1px;
+}
+
+.status-effect-poison {
+    -fx-background-color: rgba(50, 205, 50, 0.3);
+    -fx-border-color: #32cd32;
+}
+
+.status-effect-burn {
+    -fx-background-color: rgba(255, 69, 0, 0.3);
+    -fx-border-color: #ff4500;
+}
+
+.status-effect-blessed {
+    -fx-background-color: rgba(255, 215, 0, 0.3);
+    -fx-border-color: #ffd700;
+}
+
+.status-effect-cursed {
+    -fx-background-color: rgba(139, 0, 139, 0.3);
+    -fx-border-color: #8b008b;
+}
+
+/* Enhanced Stat Labels */
+.mana-stat {
+    -fx-text-fill: #6495ed;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, rgba(100, 149, 237, 0.5), 2, 0.5, 0, 1);
+}
+
+/* Achievement Notification Animation */
+@keyframes achievementSlideIn {
+    from {
+        -fx-translate-y: -50px;
+        -fx-opacity: 0;
+    }
+    to {
+        -fx-translate-y: 0;
+        -fx-opacity: 1;
+    }
+}
+
+.achievement-notification {
+    -fx-animation: achievementSlideIn 0.5s ease-out;
+}
+
+/* Combat Animation Effects */
+@keyframes combatHit {
+    0% { -fx-scale-x: 1; -fx-scale-y: 1; }
+    50% { -fx-scale-x: 1.1; -fx-scale-y: 1.1; }
+    100% { -fx-scale-x: 1; -fx-scale-y: 1; }
+}
+
+@keyframes criticalHit {
+    0% { -fx-scale-x: 1; -fx-scale-y: 1; -fx-rotate: 0; }
+    25% { -fx-scale-x: 1.2; -fx-scale-y: 1.2; -fx-rotate: -5; }
+    75% { -fx-scale-x: 1.2; -fx-scale-y: 1.2; -fx-rotate: 5; }
+    100% { -fx-scale-x: 1; -fx-scale-y: 1; -fx-rotate: 0; }
+}
+
+.combat-hit-animation {
+    -fx-animation: combatHit 0.3s ease-in-out;
+}
+
+.critical-hit-animation {
+    -fx-animation: criticalHit 0.6s ease-in-out;
+}
+
+/* Enhanced Tooltips */
+.tooltip {
+    -fx-background-color: rgba(20, 20, 20, 0.95);
+    -fx-text-fill: #ffffff;
+    -fx-border-color: -fx-accent;
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-font-size: 11px;
+    -fx-padding: 6px 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 8, 0.5, 0, 3);
+}
+
 /* ===== PRINT STYLES ===== */
 @media print {
     .root {
