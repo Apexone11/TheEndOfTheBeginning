@@ -52,6 +52,17 @@ public class MainControllerNew implements Initializable {
     @FXML private Label levelLabel;         // Player level display
     @FXML private javafx.scene.layout.HBox achievementNotificationArea; // Achievement notification display
     
+    // V4.0.0 - Progress bars for enhanced visual feedback
+    @FXML private javafx.scene.control.ProgressBar healthProgressBar;
+    @FXML private javafx.scene.control.ProgressBar manaProgressBar;
+    @FXML private javafx.scene.control.ProgressBar experienceProgressBar;
+    
+    // V4.0.0 - Additional stat labels
+    @FXML private Label manaLabel;
+    @FXML private Label agilityLabel;
+    @FXML private Label luckLabel;
+    @FXML private Label accuracyLabel;
+    
     // ===== GAME STATE MANAGEMENT =====
     private Player player;                  // Enhanced player system
     private GameState gameState;            // Legacy compatibility system
@@ -1171,19 +1182,51 @@ public class MainControllerNew implements Initializable {
     }
     
     private void showCredits() {
-        appendToGameText("\n═══ CREDITS ═══\n");
-        appendToGameText("🎮 Game Developer: Abdul Fornah\n");
-        appendToGameText("🛠️ Built with: Java + JavaFX\n");
-        appendToGameText("🎨 Enhanced UI & Complete RPG System\n");
-        appendToGameText("🏆 Thank you for playing!\n\n");
+        StringBuilder credits = new StringBuilder();
         
-        if (!player.getAchievements().isEmpty()) {
-            appendToGameText("🏅 Your Achievements:\n");
+        credits.append("\n╔═══════════════════════════════════════════════════════╗\n");
+        credits.append("║                    🎮 CREDITS 🎮                      ║\n");
+        credits.append("╠═══════════════════════════════════════════════════════╣\n");
+        credits.append("║                                                       ║\n");
+        credits.append("║  THE END THE BEGINNING - DUNGEON ESCAPE v4.0.0        ║\n");
+        credits.append("║                                                       ║\n");
+        credits.append("║  Game Developer .......... Abdul Fornah              ║\n");
+        credits.append("║  Framework ............... Java 17 + JavaFX 20       ║\n");
+        credits.append("║  Build System ............ Apache Maven              ║\n");
+        credits.append("║  Testing Framework ....... JUnit 5                   ║\n");
+        credits.append("║                                                       ║\n");
+        credits.append("║  Features:                                            ║\n");
+        credits.append("║  • Advanced Combat System                             ║\n");
+        credits.append("║  • Achievement Tracking                               ║\n");
+        credits.append("║  • Audio Framework (ready for music)                  ║\n");
+        credits.append("║  • Keyboard Shortcuts                                 ║\n");
+        credits.append("║  • Auto-Save System                                   ║\n");
+        credits.append("║  • 50 Challenging Levels                              ║\n");
+        credits.append("║                                                       ║\n");
+        
+        if (player != null && !player.getAchievements().isEmpty()) {
+            credits.append("║  🏅 YOUR ACHIEVEMENTS:                                ║\n");
+            credits.append("║                                                       ║\n");
             for (String achievement : player.getAchievements()) {
-                appendToGameText("   ★ " + achievement + "\n");
+                String formatted = String.format("║  ★ %-49s ║", achievement);
+                if (formatted.length() > 58) {
+                    formatted = formatted.substring(0, 55) + "... ║";
+                }
+                credits.append(formatted).append("\n");
             }
-            appendToGameText("\n");
+            credits.append("║                                                       ║\n");
         }
+        
+        credits.append("║  Special Thanks:                                      ║\n");
+        credits.append("║  • FreePD, Incompetech, Freesound (Music Resources)   ║\n");
+        credits.append("║  • OpenGameArt Community                              ║\n");
+        credits.append("║  • JavaFX Community                                   ║\n");
+        credits.append("║                                                       ║\n");
+        credits.append("╠═══════════════════════════════════════════════════════╣\n");
+        credits.append("║         🙏 Thank you for playing! 🙏                  ║\n");
+        credits.append("╚═══════════════════════════════════════════════════════╝\n\n");
+        
+        appendToGameText(credits.toString());
     }
     
     private void resetGame() {
@@ -1209,10 +1252,44 @@ public class MainControllerNew implements Initializable {
      */
     private void updateUI() {
         if (player != null) {
+            // Update text labels
             healthLabel.setText("❤ Health: " + player.getHealth());
             defenseLabel.setText("🛡 Defense: " + player.getDefense());
             attackLabel.setText("⚔ Attack: " + player.getAttack());
             levelLabel.setText("📈 Level: " + player.getLevel());
+            
+            // V4.0.0 - Update progress bars
+            if (healthProgressBar != null) {
+                double healthPercent = (double) player.getHealth() / player.getMaxHealth();
+                healthProgressBar.setProgress(Math.max(0.0, Math.min(1.0, healthPercent)));
+            }
+            
+            if (manaProgressBar != null && player.getMaxMana() > 0) {
+                double manaPercent = (double) player.getMana() / player.getMaxMana();
+                manaProgressBar.setProgress(Math.max(0.0, Math.min(1.0, manaPercent)));
+            }
+            
+            if (experienceProgressBar != null && player.getExperienceToNextLevel() > 0) {
+                double expPercent = (double) player.getExperience() / player.getExperienceToNextLevel();
+                experienceProgressBar.setProgress(Math.max(0.0, Math.min(1.0, expPercent)));
+            }
+            
+            // V4.0.0 - Update additional stat labels
+            if (manaLabel != null) {
+                manaLabel.setText("💙 Mana: " + player.getMana());
+            }
+            if (agilityLabel != null) {
+                agilityLabel.setText("⚡ Agility: " + player.getAgility());
+            }
+            if (luckLabel != null) {
+                luckLabel.setText("🍀 Luck: " + player.getLuck());
+            }
+            if (accuracyLabel != null) {
+                // Calculate accuracy percentage
+                double accuracy = 0.85 + (player.getAgility() * 0.002);
+                int accuracyPercent = (int)(accuracy * 100);
+                accuracyLabel.setText("🎯 Accuracy: " + accuracyPercent + "%");
+            }
             
             // Add visual feedback for low health
             if (player.getHealth() <= player.getMaxHealth() * 0.25) {
@@ -1226,6 +1303,11 @@ public class MainControllerNew implements Initializable {
             defenseLabel.setText("🛡 Defense: " + gameState.getDefense());
             attackLabel.setText("⚔ Attack: " + gameState.getAttack());
             levelLabel.setText("📈 Level: " + gameState.getLevel());
+            
+            // Set progress bars to default values when no player
+            if (healthProgressBar != null) healthProgressBar.setProgress(1.0);
+            if (manaProgressBar != null) manaProgressBar.setProgress(1.0);
+            if (experienceProgressBar != null) experienceProgressBar.setProgress(0.0);
         }
     }
     
