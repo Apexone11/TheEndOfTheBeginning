@@ -25,12 +25,12 @@
       </VBox.margin>
    </Label>
    
-   <!-- Main Game Display Area -->
-   <ScrollPane prefHeight="400.0" prefWidth="760.0" fitToWidth="true" styleClass="game-scroll-pane">
+   <!-- Main Game Display Area with improved sizing -->
+   <ScrollPane prefHeight="450.0" prefWidth="850.0" fitToWidth="true" styleClass="game-scroll-pane">
       <content>
          <TextArea fx:id="gameTextArea" editable="false" wrapText="true" styleClass="game-text-area"
                    promptText="Welcome, brave adventurer! Your journey begins here..."
-                   prefRowCount="20" prefColumnCount="80" />
+                   prefRowCount="22" prefColumnCount="85" />
       </content>
    </ScrollPane>
    
@@ -101,8 +101,8 @@
       </VBox.margin>
       
       <Label text="💬 Your Command:" styleClass="stat-label" />
-      <TextField fx:id="inputField" prefWidth="500.0" styleClass="game-input"
-                 promptText="Enter your choice or command here..." />
+      <TextField fx:id="inputField" prefWidth="600.0" styleClass="game-input"
+                 promptText="Enter your choice or command here... (Press Enter to submit)" />
       <Button fx:id="submitButton" onAction="#handleSubmit" text="➤ Submit" styleClass="submit-button" />
    </HBox>
    

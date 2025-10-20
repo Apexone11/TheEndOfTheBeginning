@@ -52,6 +52,17 @@ public class MainControllerNew implements Initializable {
     @FXML private Label levelLabel;         // Player level display
     @FXML private javafx.scene.layout.HBox achievementNotificationArea; // Achievement notification display
     
+    // V4.0.0 - Progress bars for enhanced visual feedback
+    @FXML private javafx.scene.control.ProgressBar healthProgressBar;
+    @FXML private javafx.scene.control.ProgressBar manaProgressBar;
+    @FXML private javafx.scene.control.ProgressBar experienceProgressBar;
+    
+    // V4.0.0 - Additional stat labels
+    @FXML private Label manaLabel;
+    @FXML private Label agilityLabel;
+    @FXML private Label luckLabel;
+    @FXML private Label accuracyLabel;
+    
     // ===== GAME STATE MANAGEMENT =====
     private Player player;                  // Enhanced player system
     private GameState gameState;            // Legacy compatibility system
@@ -104,8 +115,120 @@ public class MainControllerNew implements Initializable {
         updateUI();
         
         // Keep input focused
-        Platform.runLater(() -> inputField.requestFocus());
+        Platform.runLater(() -> {
+            inputField.requestFocus();
+            // Set up keyboard shortcuts after scene is available
+            setupKeyboardShortcuts();
+        });
     }
+    
+    /**
+     * Set up keyboard shortcuts for quick actions (v4.0.0 Feature).
+     */
+    private void setupKeyboardShortcuts() {
+        if (gameTextArea.getScene() != null) {
+            gameTextArea.getScene().setOnKeyPressed(event -> {
+                // Check for Ctrl/Command key combinations
+                if (event.isControlDown() || event.isMetaDown()) {
+                    switch (event.getCode()) {
+                        case S -> {
+                            // Ctrl+S: Quick Save
+                            event.consume();
+                            if (isGameRunning && player != null) {
+                                quickSave();
+                            }
+                        }
+                        case L -> {
+                            // Ctrl+L: Quick Load
+                            event.consume();
+                            if (SaveManager.saveExists()) {
+                                quickLoad();
+                            }
+                        }
+                    }
+                } else if (event.getCode() == javafx.scene.input.KeyCode.F1) {
+                    // F1: Show help/hints
+                    event.consume();
+                    showHelp();
+                } else if (currentMonster != null && currentMonster.isAlive() && !waitingForInput) {
+                    // Number keys for combat when in combat
+                    switch (event.getCode()) {
+                        case DIGIT1, NUMPAD1 -> {
+                            event.consume();
+                            performNormalAttack();
+                        }
+                        case DIGIT2, NUMPAD2 -> {
+                            event.consume();
+                            performDefend();
+                        }
+                        case DIGIT3, NUMPAD3 -> {
+                            event.consume();
+                            performHeavyAttack();
+                        }
+                        case DIGIT4, NUMPAD4 -> {
+                            event.consume();
+                            performQuickAttack();
+                        }
+                        case DIGIT5, NUMPAD5 -> {
+                            event.consume();
+                            useItemInCombat();
+                        }
+                        case DIGIT6, NUMPAD6 -> {
+                            event.consume();
+                            attemptToRun();
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    /**
+     * Quick save feature (Ctrl+S shortcut).
+     */
+    private void quickSave() {
+        appendToGameText("\n💾 Quick saving...\n");
+        syncPlayerToGameState();
+        SaveManager.saveGame(player, gameState.getLevel());
+        appendToGameText("✅ Game saved successfully!\n\n");
+        audioManager.playUISound("button");
+    }
+    
+    /**
+     * Quick load feature (Ctrl+L shortcut).
+     */
+    private void quickLoad() {
+        appendToGameText("\n📂 Quick loading...\n");
+        loadSavedGame();
+    }
+    
+    /**
+     * Show help and keyboard shortcuts (F1 shortcut).
+     */
+    private void showHelp() {
+        appendToGameText("\n╔═══════════════════════════════════════════════════════╗\n");
+        appendToGameText("║              📖 HELP & KEYBOARD SHORTCUTS             ║\n");
+        appendToGameText("╠═══════════════════════════════════════════════════════╣\n");
+        appendToGameText("║  KEYBOARD SHORTCUTS:                                  ║\n");
+        appendToGameText("║  • Ctrl+S ............ Quick Save                    ║\n");
+        appendToGameText("║  • Ctrl+L ............ Quick Load                    ║\n");
+        appendToGameText("║  • F1 ................ Show this help                ║\n");
+        appendToGameText("║  • 1-6 (in combat) ... Quick combat actions          ║\n");
+        appendToGameText("║                                                       ║\n");
+        appendToGameText("║  COMBAT ACTIONS (Number Keys):                       ║\n");
+        appendToGameText("║  • 1 ................. Normal Attack                 ║\n");
+        appendToGameText("║  • 2 ................. Defend                         ║\n");
+        appendToGameText("║  • 3 ................. Heavy Attack (costs mana)     ║\n");
+        appendToGameText("║  • 4 ................. Quick Attack                  ║\n");
+        appendToGameText("║  • 5 ................. Use Item                      ║\n");
+        appendToGameText("║  • 6 ................. Attempt to Run                ║\n");
+        appendToGameText("║                                                       ║\n");
+        appendToGameText("║  QUICK COMMANDS:                                      ║\n");
+        appendToGameText("║  • use <item> ........ Use item by name              ║\n");
+        appendToGameText("║                                                       ║\n");
+        appendToGameText("╚═══════════════════════════════════════════════════════╝\n\n");
+    }
+    
     
     /**
      * Applies current settings to the game UI.
@@ -132,7 +255,7 @@ public class MainControllerNew implements Initializable {
     
     private void displayWelcomeMessage() {
         appendToGameText("═══════════════════════════════════════════════════════════\n");
-        appendToGameText("    ⚔️  THE END THE BEGINNING - DUNGEON ESCAPE v3.0  ⚔️\n");
+        appendToGameText("   ⚔️  THE END THE BEGINNING - DUNGEON ESCAPE v4.0.0  ⚔️\n");
         appendToGameText("═══════════════════════════════════════════════════════════\n\n");
         
         appendToGameText("Welcome, brave soul, to the depths of mystery and danger...\n\n");
@@ -143,11 +266,16 @@ public class MainControllerNew implements Initializable {
         
         appendToGameText("═══ FEATURES ═══\n");
         appendToGameText("• Choose your character class (Warrior, Mage, Rogue)\n");
+        appendToGameText("• Advanced combat system with multiple attack types\n");
         appendToGameText("• Collect powerful items and equipment\n");
         appendToGameText("• Face challenging monsters with unique abilities\n");
         appendToGameText("• Progress through 50 levels to escape\n");
-        appendToGameText("• Save and load your progress\n");
+        appendToGameText("• Auto-save and quick-load functionality\n");
         appendToGameText("• Unlock achievements and track your progress\n\n");
+        
+        appendToGameText("═══ KEYBOARD SHORTCUTS ═══\n");
+        appendToGameText("• Ctrl+S: Quick Save  • Ctrl+L: Quick Load\n");
+        appendToGameText("• F1: Help & Hints  • 1-6: Combat Actions\n\n");
         
         appendToGameText("🎮 Click 'Start New Game' when you're ready to begin!\n");
         appendToGameText("📋 Use 'View Stats' anytime to check your progress\n");
@@ -1054,19 +1182,51 @@ public class MainControllerNew implements Initializable {
     }
     
     private void showCredits() {
-        appendToGameText("\n═══ CREDITS ═══\n");
-        appendToGameText("🎮 Game Developer: Abdul Fornah\n");
-        appendToGameText("🛠️ Built with: Java + JavaFX\n");
-        appendToGameText("🎨 Enhanced UI & Complete RPG System\n");
-        appendToGameText("🏆 Thank you for playing!\n\n");
+        StringBuilder credits = new StringBuilder();
         
-        if (!player.getAchievements().isEmpty()) {
-            appendToGameText("🏅 Your Achievements:\n");
+        credits.append("\n╔═══════════════════════════════════════════════════════╗\n");
+        credits.append("║                    🎮 CREDITS 🎮                      ║\n");
+        credits.append("╠═══════════════════════════════════════════════════════╣\n");
+        credits.append("║                                                       ║\n");
+        credits.append("║  THE END THE BEGINNING - DUNGEON ESCAPE v4.0.0        ║\n");
+        credits.append("║                                                       ║\n");
+        credits.append("║  Game Developer .......... Abdul Fornah              ║\n");
+        credits.append("║  Framework ............... Java 17 + JavaFX 20       ║\n");
+        credits.append("║  Build System ............ Apache Maven              ║\n");
+        credits.append("║  Testing Framework ....... JUnit 5                   ║\n");
+        credits.append("║                                                       ║\n");
+        credits.append("║  Features:                                            ║\n");
+        credits.append("║  • Advanced Combat System                             ║\n");
+        credits.append("║  • Achievement Tracking                               ║\n");
+        credits.append("║  • Audio Framework (ready for music)                  ║\n");
+        credits.append("║  • Keyboard Shortcuts                                 ║\n");
+        credits.append("║  • Auto-Save System                                   ║\n");
+        credits.append("║  • 50 Challenging Levels                              ║\n");
+        credits.append("║                                                       ║\n");
+        
+        if (player != null && !player.getAchievements().isEmpty()) {
+            credits.append("║  🏅 YOUR ACHIEVEMENTS:                                ║\n");
+            credits.append("║                                                       ║\n");
             for (String achievement : player.getAchievements()) {
-                appendToGameText("   ★ " + achievement + "\n");
+                String formatted = String.format("║  ★ %-49s ║", achievement);
+                if (formatted.length() > 58) {
+                    formatted = formatted.substring(0, 55) + "... ║";
+                }
+                credits.append(formatted).append("\n");
             }
-            appendToGameText("\n");
+            credits.append("║                                                       ║\n");
         }
+        
+        credits.append("║  Special Thanks:                                      ║\n");
+        credits.append("║  • FreePD, Incompetech, Freesound (Music Resources)   ║\n");
+        credits.append("║  • OpenGameArt Community                              ║\n");
+        credits.append("║  • JavaFX Community                                   ║\n");
+        credits.append("║                                                       ║\n");
+        credits.append("╠═══════════════════════════════════════════════════════╣\n");
+        credits.append("║         🙏 Thank you for playing! 🙏                  ║\n");
+        credits.append("╚═══════════════════════════════════════════════════════╝\n\n");
+        
+        appendToGameText(credits.toString());
     }
     
     private void resetGame() {
@@ -1092,10 +1252,44 @@ public class MainControllerNew implements Initializable {
      */
     private void updateUI() {
         if (player != null) {
+            // Update text labels
             healthLabel.setText("❤ Health: " + player.getHealth());
             defenseLabel.setText("🛡 Defense: " + player.getDefense());
             attackLabel.setText("⚔ Attack: " + player.getAttack());
             levelLabel.setText("📈 Level: " + player.getLevel());
+            
+            // V4.0.0 - Update progress bars
+            if (healthProgressBar != null) {
+                double healthPercent = (double) player.getHealth() / player.getMaxHealth();
+                healthProgressBar.setProgress(Math.max(0.0, Math.min(1.0, healthPercent)));
+            }
+            
+            if (manaProgressBar != null && player.getMaxMana() > 0) {
+                double manaPercent = (double) player.getMana() / player.getMaxMana();
+                manaProgressBar.setProgress(Math.max(0.0, Math.min(1.0, manaPercent)));
+            }
+            
+            if (experienceProgressBar != null && player.getExperienceToNextLevel() > 0) {
+                double expPercent = (double) player.getExperience() / player.getExperienceToNextLevel();
+                experienceProgressBar.setProgress(Math.max(0.0, Math.min(1.0, expPercent)));
+            }
+            
+            // V4.0.0 - Update additional stat labels
+            if (manaLabel != null) {
+                manaLabel.setText("💙 Mana: " + player.getMana());
+            }
+            if (agilityLabel != null) {
+                agilityLabel.setText("⚡ Agility: " + player.getAgility());
+            }
+            if (luckLabel != null) {
+                luckLabel.setText("🍀 Luck: " + player.getLuck());
+            }
+            if (accuracyLabel != null) {
+                // Calculate accuracy percentage
+                double accuracy = 0.85 + (player.getAgility() * 0.002);
+                int accuracyPercent = (int)(accuracy * 100);
+                accuracyLabel.setText("🎯 Accuracy: " + accuracyPercent + "%");
+            }
             
             // Add visual feedback for low health
             if (player.getHealth() <= player.getMaxHealth() * 0.25) {
@@ -1109,6 +1303,11 @@ public class MainControllerNew implements Initializable {
             defenseLabel.setText("🛡 Defense: " + gameState.getDefense());
             attackLabel.setText("⚔ Attack: " + gameState.getAttack());
             levelLabel.setText("📈 Level: " + gameState.getLevel());
+            
+            // Set progress bars to default values when no player
+            if (healthProgressBar != null) healthProgressBar.setProgress(1.0);
+            if (manaProgressBar != null) manaProgressBar.setProgress(1.0);
+            if (experienceProgressBar != null) experienceProgressBar.setProgress(0.0);
         }
     }
     

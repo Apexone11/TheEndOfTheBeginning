@@ -2,6 +2,104 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.0] - 2025-10-20
+
+### 🎮 Major Features
+
+#### Keyboard Shortcuts System
+- **Quick Save (Ctrl+S)**: Save your progress instantly during gameplay
+- **Quick Load (Ctrl+L)**: Load your saved game with a single keystroke
+- **Help Menu (F1)**: Access comprehensive help and keyboard shortcuts guide anytime
+- **Combat Hotkeys (1-6)**: Execute combat actions quickly with number keys
+  - 1: Normal Attack
+  - 2: Defend
+  - 3: Heavy Attack (mana cost)
+  - 4: Quick Attack
+  - 5: Use Item
+  - 6: Attempt to Run
+- Keyboard shortcuts work throughout the game for seamless gameplay
+
+#### Audio System Framework
+- **Complete Audio Architecture**: Ready-to-use audio management system
+- **Copyright-Free Music Guide**: Comprehensive documentation for adding music
+- **Multiple Audio Sources**: Support for music and sound effects
+- **Audio Categories**: Combat, UI, Environment, and Music
+- **Framework Mode**: Game fully playable without audio files
+- **Licensing Documentation**: Detailed attribution guide in MUSIC_ATTRIBUTION.md
+- **Recommended Sources**: FreePD, Incompetech, Freesound, OpenGameArt
+- See [MUSIC_ATTRIBUTION.md](TheEndTheBeginning/MUSIC_ATTRIBUTION.md) for details
+
+### 🎨 UI/UX Enhancements
+
+#### Improved Window Layout
+- **Optimized Resolution**: Increased to 950x750 for better visibility
+- **Better Component Spacing**: More breathing room for UI elements
+- **Larger Text Area**: Increased to 450px height for improved readability
+- **Wider Input Field**: Expanded to 600px for easier text entry
+- **Enhanced Prompt Text**: More helpful placeholder text in input field
+
+#### Visual Feedback Improvements
+- **Progress Bars**: Real-time health, mana, and experience visualization
+- **Additional Stats Display**: Agility, luck, and accuracy now shown
+- **Dynamic Accuracy Calculation**: Live calculation based on player stats
+- **Low Health Warning**: Visual indicator when health drops below 25%
+- **Progress Bar Animations**: Smooth transitions for stat changes
+
+#### Enhanced Credits Screen
+- **Formatted Credits Display**: Professional box-style layout
+- **Achievement Showcase**: Display unlocked achievements in credits
+- **Framework Attribution**: Credit to open-source music resources
+- **Version Information**: Current version prominently displayed
+- **Special Thanks Section**: Recognition of community contributors
+
+### 🔧 Technical Improvements
+
+#### Code Quality
+- **Version Consistency**: Updated all version references to v4.0.0
+- **Progress Bar Integration**: Full implementation of health/mana/XP bars
+- **Null-Safe UI Updates**: Protected against missing UI components
+- **Enhanced Error Handling**: Better safeguards for edge cases
+- **Code Documentation**: Improved comments and method descriptions
+
+#### Bug Fixes
+- **Fixed SaveManager Call**: Corrected parameter types in quick save
+- **Fixed UI Sizing Issues**: Proper measurements throughout FXML
+- **Fixed Method Calls**: Corrected getExperienceToNextLevel() usage
+- **Window Title**: Updated to show correct version (v4.0.0)
+- **Welcome Message**: Updated version display and feature list
+
+### 📚 Documentation
+
+#### New Documentation
+- **MUSIC_ATTRIBUTION.md**: Complete guide for adding copyright-free audio
+- **Audio README**: Integration instructions in resources/audio directory
+- **Updated README.md**: New features, keyboard shortcuts, and audio setup
+- **Enhanced Help System**: In-game F1 help with comprehensive shortcuts guide
+
+#### Improved Documentation
+- **Keyboard Shortcuts Section**: Detailed listing in README
+- **Gameplay Tips**: Updated with new shortcuts and features
+- **Quick Start Guide**: Simplified setup instructions
+- **Audio Integration Guide**: Step-by-step audio addition process
+
+### 🎯 Quality of Life
+
+#### Gameplay Improvements
+- **Faster Combat**: Number key shortcuts speed up battle actions
+- **Quick Save/Load**: No more navigating menus to save progress
+- **Instant Help**: F1 brings up help without interrupting gameplay
+- **Better Visual Feedback**: Know your exact health, mana, and XP at a glance
+- **Professional Polish**: Enhanced credits and end-game experience
+
+#### User Experience
+- **Better First Impression**: Updated welcome message with all features
+- **Clearer Instructions**: More helpful prompts throughout game
+- **Visual Progress**: Progress bars provide instant feedback
+- **Accessibility**: Keyboard shortcuts improve game accessibility
+- **Documentation**: Easier to understand what features are available
+
+---
+
 ## [3.0.0] - 2024-09-30
 
 ### 🎮 Major Features

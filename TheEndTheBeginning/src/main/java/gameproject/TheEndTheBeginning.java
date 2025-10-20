@@ -70,15 +70,15 @@ public class TheEndTheBeginning extends Application {
         Parent root = loader.load();
         
         // SCENE CREATION: Set up the game window with appropriate dimensions
-        // 900x700 provides better visibility for enhanced content
-        Scene scene = new Scene(root, 900, 700);
+        // 950x750 provides better visibility for enhanced content with proper spacing
+        Scene scene = new Scene(root, 950, 750);
         
         // WINDOW CONFIGURATION: Set up the main game window properties
-        primaryStage.setTitle("The End The Beginning - Dungeon Escape v3.0");
+        primaryStage.setTitle("The End The Beginning - Dungeon Escape v4.0.0");
         primaryStage.setScene(scene);
         primaryStage.setResizable(true);  // Allow players to resize for comfort
-        primaryStage.setMinWidth(800);    // Set minimum dimensions
-        primaryStage.setMinHeight(600);
+        primaryStage.setMinWidth(850);    // Set minimum dimensions for proper UI fit
+        primaryStage.setMinHeight(650);
         
         // Try to load and set window icon
         try {
