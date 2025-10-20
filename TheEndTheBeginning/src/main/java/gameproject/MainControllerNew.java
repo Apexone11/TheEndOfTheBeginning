@@ -104,8 +104,120 @@ public class MainControllerNew implements Initializable {
         updateUI();
         
         // Keep input focused
-        Platform.runLater(() -> inputField.requestFocus());
+        Platform.runLater(() -> {
+            inputField.requestFocus();
+            // Set up keyboard shortcuts after scene is available
+            setupKeyboardShortcuts();
+        });
     }
+    
+    /**
+     * Set up keyboard shortcuts for quick actions (v4.0.0 Feature).
+     */
+    private void setupKeyboardShortcuts() {
+        if (gameTextArea.getScene() != null) {
+            gameTextArea.getScene().setOnKeyPressed(event -> {
+                // Check for Ctrl/Command key combinations
+                if (event.isControlDown() || event.isMetaDown()) {
+                    switch (event.getCode()) {
+                        case S -> {
+                            // Ctrl+S: Quick Save
+                            event.consume();
+                            if (isGameRunning && player != null) {
+                                quickSave();
+                            }
+                        }
+                        case L -> {
+                            // Ctrl+L: Quick Load
+                            event.consume();
+                            if (SaveManager.saveExists()) {
+                                quickLoad();
+                            }
+                        }
+                    }
+                } else if (event.getCode() == javafx.scene.input.KeyCode.F1) {
+                    // F1: Show help/hints
+                    event.consume();
+                    showHelp();
+                } else if (currentMonster != null && currentMonster.isAlive() && !waitingForInput) {
+                    // Number keys for combat when in combat
+                    switch (event.getCode()) {
+                        case DIGIT1, NUMPAD1 -> {
+                            event.consume();
+                            performNormalAttack();
+                        }
+                        case DIGIT2, NUMPAD2 -> {
+                            event.consume();
+                            performDefend();
+                        }
+                        case DIGIT3, NUMPAD3 -> {
+                            event.consume();
+                            performHeavyAttack();
+                        }
+                        case DIGIT4, NUMPAD4 -> {
+                            event.consume();
+                            performQuickAttack();
+                        }
+                        case DIGIT5, NUMPAD5 -> {
+                            event.consume();
+                            useItemInCombat();
+                        }
+                        case DIGIT6, NUMPAD6 -> {
+                            event.consume();
+                            attemptToRun();
+                        }
+                    }
+                }
+            });
+        }
+    }
+    
+    /**
+     * Quick save feature (Ctrl+S shortcut).
+     */
+    private void quickSave() {
+        appendToGameText("\n💾 Quick saving...\n");
+        syncPlayerToGameState();
+        SaveManager.saveGame(player, gameState.getLevel());
+        appendToGameText("✅ Game saved successfully!\n\n");
+        audioManager.playUISound("button");
+    }
+    
+    /**
+     * Quick load feature (Ctrl+L shortcut).
+     */
+    private void quickLoad() {
+        appendToGameText("\n📂 Quick loading...\n");
+        loadSavedGame();
+    }
+    
+    /**
+     * Show help and keyboard shortcuts (F1 shortcut).
+     */
+    private void showHelp() {
+        appendToGameText("\n╔═══════════════════════════════════════════════════════╗\n");
+        appendToGameText("║              📖 HELP & KEYBOARD SHORTCUTS             ║\n");
+        appendToGameText("╠═══════════════════════════════════════════════════════╣\n");
+        appendToGameText("║  KEYBOARD SHORTCUTS:                                  ║\n");
+        appendToGameText("║  • Ctrl+S ............ Quick Save                    ║\n");
+        appendToGameText("║  • Ctrl+L ............ Quick Load                    ║\n");
+        appendToGameText("║  • F1 ................ Show this help                ║\n");
+        appendToGameText("║  • 1-6 (in combat) ... Quick combat actions          ║\n");
+        appendToGameText("║                                                       ║\n");
+        appendToGameText("║  COMBAT ACTIONS (Number Keys):                       ║\n");
+        appendToGameText("║  • 1 ................. Normal Attack                 ║\n");
+        appendToGameText("║  • 2 ................. Defend                         ║\n");
+        appendToGameText("║  • 3 ................. Heavy Attack (costs mana)     ║\n");
+        appendToGameText("║  • 4 ................. Quick Attack                  ║\n");
+        appendToGameText("║  • 5 ................. Use Item                      ║\n");
+        appendToGameText("║  • 6 ................. Attempt to Run                ║\n");
+        appendToGameText("║                                                       ║\n");
+        appendToGameText("║  QUICK COMMANDS:                                      ║\n");
+        appendToGameText("║  • use <item> ........ Use item by name              ║\n");
+        appendToGameText("║                                                       ║\n");
+        appendToGameText("╚═══════════════════════════════════════════════════════╝\n\n");
+    }
+    
     
     /**
      * Applies current settings to the game UI.
@@ -132,7 +244,7 @@ public class MainControllerNew implements Initializable {
     
     private void displayWelcomeMessage() {
         appendToGameText("═══════════════════════════════════════════════════════════\n");
-        appendToGameText("    ⚔️  THE END THE BEGINNING - DUNGEON ESCAPE v3.0  ⚔️\n");
+        appendToGameText("   ⚔️  THE END THE BEGINNING - DUNGEON ESCAPE v4.0.0  ⚔️\n");
         appendToGameText("═══════════════════════════════════════════════════════════\n\n");
         
         appendToGameText("Welcome, brave soul, to the depths of mystery and danger...\n\n");
@@ -143,11 +255,16 @@ public class MainControllerNew implements Initializable {
         
         appendToGameText("═══ FEATURES ═══\n");
         appendToGameText("• Choose your character class (Warrior, Mage, Rogue)\n");
+        appendToGameText("• Advanced combat system with multiple attack types\n");
         appendToGameText("• Collect powerful items and equipment\n");
         appendToGameText("• Face challenging monsters with unique abilities\n");
         appendToGameText("• Progress through 50 levels to escape\n");
-        appendToGameText("• Save and load your progress\n");
+        appendToGameText("• Auto-save and quick-load functionality\n");
         appendToGameText("• Unlock achievements and track your progress\n\n");
+        
+        appendToGameText("═══ KEYBOARD SHORTCUTS ═══\n");
+        appendToGameText("• Ctrl+S: Quick Save  • Ctrl+L: Quick Load\n");
+        appendToGameText("• F1: Help & Hints  • 1-6: Combat Actions\n\n");
         
         appendToGameText("🎮 Click 'Start New Game' when you're ready to begin!\n");
         appendToGameText("📋 Use 'View Stats' anytime to check your progress\n");
