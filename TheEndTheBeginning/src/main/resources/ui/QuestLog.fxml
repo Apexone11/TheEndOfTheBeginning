@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+      spacing="15.0">
+   <padding>
+      <Insets top="20.0" bottom="20.0" left="20.0" right="20.0" />
+   </padding>
+   
+   <!-- Header -->
+   <HBox alignment="CENTER_LEFT" spacing="15.0">
+      <Label text="Quest Log" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+      <Region HBox.hgrow="ALWAYS" />
+      <Button fx:id="closeButton" text="Close" styleClass="button">
+         <graphic>
+            <FontIcon iconLiteral="fas-times" iconSize="16" />
+         </graphic>
+      </Button>
+   </HBox>
+   
+   <!-- Quest Tabs -->
+   <HBox spacing="10.0">
+      <Button fx:id="activeTabButton" text="Active" styleClass="button" />
+      <Button fx:id="completedTabButton" text="Completed" styleClass="button" />
+      <Button fx:id="allTabButton" text="All" styleClass="button" />
+   </HBox>
+   
+   <!-- Quest List -->
+   <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="quest-scroll">
+      <content>
+         <VBox fx:id="questListBox" spacing="10.0" />
+      </content>
+   </ScrollPane>
+   
+   <!-- Selected Quest Details -->
+   <VBox fx:id="questDetailsBox" spacing="10.0" styleClass="quest-details-panel" visible="false">
+      <Label fx:id="questTitleLabel" text="Quest Title" 
+             style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+      <Label fx:id="questDescLabel" text="Quest Description" wrapText="true" />
+      <ProgressBar fx:id="questProgressBar" prefWidth="400.0" progress="0.0" />
+      <Label fx:id="questProgressLabel" text="0/0" />
+   </VBox>
+</VBox>
+

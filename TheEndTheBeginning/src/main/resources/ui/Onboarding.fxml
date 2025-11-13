@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+      spacing="20.0" alignment="CENTER">
+   <padding>
+      <Insets top="40.0" bottom="40.0" left="60.0" right="60.0" />
+   </padding>
+   
+   <Label text="Welcome to The End The Beginning!" 
+          style="-fx-font-size: 28px; -fx-font-weight: bold;" />
+   
+   <Label text="Create Your Character" 
+          style="-fx-font-size: 20px; -fx-text-fill: -color-text-muted;" />
+   
+   <!-- Name Generator -->
+   <VBox spacing="10.0" alignment="CENTER" prefWidth="400.0">
+      <HBox spacing="10.0" alignment="CENTER">
+         <TextField fx:id="nameField" promptText="Enter your name" prefWidth="250.0" />
+         <Button fx:id="generateNameButton" text="🎲" styleClass="button" 
+                tooltip="Generate Random Name" />
+      </HBox>
+      
+      <Label text="Or click the dice to generate a random name!" 
+             style="-fx-font-size: 12px; -fx-text-fill: -color-text-muted;" />
+   </VBox>
+   
+   <!-- Class Selection -->
+   <VBox spacing="15.0" alignment="CENTER">
+      <Label text="Choose Your Class:" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+      
+      <HBox spacing="15.0" alignment="CENTER">
+         <Button fx:id="warriorButton" text="Warrior" styleClass="btn-primary" 
+                prefWidth="150.0" prefHeight="80.0">
+            <VBox alignment="CENTER" spacing="5.0">
+               <Label text="🛡️" style="-fx-font-size: 24px;" />
+               <Label text="High HP & Defense" style="-fx-font-size: 11px;" />
+            </VBox>
+         </Button>
+         
+         <Button fx:id="mageButton" text="Mage" styleClass="btn-primary" 
+                prefWidth="150.0" prefHeight="80.0">
+            <VBox alignment="CENTER" spacing="5.0">
+               <Label text="🧙" style="-fx-font-size: 24px;" />
+               <Label text="High Magic & Attack" style="-fx-font-size: 11px;" />
+            </VBox>
+         </Button>
+         
+         <Button fx:id="rogueButton" text="Rogue" styleClass="btn-primary" 
+                prefWidth="150.0" prefHeight="80.0">
+            <VBox alignment="CENTER" spacing="5.0">
+               <Label text="😏" style="-fx-font-size: 24px;" />
+               <Label text="Balanced & Critical" style="-fx-font-size: 11px;" />
+            </VBox>
+         </Button>
+      </HBox>
+   </VBox>
+   
+   <!-- Difficulty Selection -->
+   <VBox spacing="10.0" alignment="CENTER" visible="false" fx:id="difficultyBox">
+      <Label text="Choose Difficulty:" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+      <HBox spacing="10.0" alignment="CENTER">
+         <Button fx:id="easyButton" text="Easy" styleClass="button" />
+         <Button fx:id="normalButton" text="Normal" styleClass="button" />
+         <Button fx:id="hardButton" text="Hard" styleClass="button" />
+         <Button fx:id="deathButton" text="Death" styleClass="button" />
+      </HBox>
+   </VBox>
+   
+   <!-- Start Button -->
+   <Button fx:id="startButton" text="Begin Adventure" styleClass="btn-accent" 
+          prefWidth="250.0" prefHeight="45.0" disable="true" />
+</VBox>
+

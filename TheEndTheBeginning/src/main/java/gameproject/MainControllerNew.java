@@ -47,6 +47,9 @@ import gameproject.achievements.Achievement;
 public class MainControllerNew implements Initializable {
     
     // ===== JAVAFX UI COMPONENT REFERENCES =====
+    @FXML private javafx.scene.layout.StackPane rootContainer; // Root container for UI routing
+    
+    // Legacy UI components (kept for compatibility during transition)
     @FXML private TextArea gameTextArea;    // Main game text display area
     @FXML private TextField inputField;     // Player text input field
     @FXML private Label healthLabel;        // Player health display
@@ -107,6 +110,10 @@ public class MainControllerNew implements Initializable {
     private AudioManager audioManager;     // Audio management system
     private AchievementManager achievementManager; // Achievement tracking system
     
+    // ===== V5.0.0 UI ROUTING =====
+    private gameproject.ui.UiRouter uiRouter; // UI router for screen navigation
+    // V5.0.0 UI Controllers - Removed, using direct button wiring instead
+    
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // Initialize enhanced player system
@@ -131,22 +138,24 @@ public class MainControllerNew implements Initializable {
             audioManager.playUISound("achievement");
         });
         
-        displayWelcomeMessage();
-        
-        // Allow Enter key to submit input
-        inputField.setOnAction(event -> handleSubmit());
-        
-        // Initialize UI - sync player stats to gameState before updating display
-        syncPlayerToGameState();
-        updateUI();
-        
-        // Keep input focused
+        // ===== V5.0.0 INITIALIZE UI ROUTER =====
         Platform.runLater(() -> {
-            inputField.requestFocus();
-            // Set up keyboard shortcuts after scene is available
-            setupKeyboardShortcuts();
-            // Set up icons for buttons
-            setupButtonIcons();
+            if (rootContainer != null) {
+                uiRouter = new gameproject.ui.UiRouter(rootContainer, settings);
+                uiRouter.setMainController(this);
+                showMainMenu();
+            } else {
+                // Fallback to legacy UI
+                displayWelcomeMessage();
+                if (inputField != null) {
+                    inputField.setOnAction(event -> handleSubmit());
+                    inputField.requestFocus();
+                }
+                syncPlayerToGameState();
+                updateUI();
+                setupKeyboardShortcuts();
+                setupButtonIcons();
+            }
         });
     }
     
@@ -418,9 +427,9 @@ public class MainControllerNew implements Initializable {
     /**
      * Applies current settings to the game UI.
      */
-    private void applySettings() {
-        // Guard against null scene (may not be initialized yet)
-        if (gameTextArea.getScene() == null) {
+    public void applySettings() {
+        // Guard against null components (may not be initialized yet)
+        if (gameTextArea == null || gameTextArea.getScene() == null) {
             return;
         }
         
@@ -1386,7 +1395,9 @@ public class MainControllerNew implements Initializable {
         }
     }
     
-    private void showInventory() {
+    // Legacy method - kept for compatibility
+    @Deprecated
+    private void showInventoryLegacy() {
         appendToGameText("\n" + player.getInventoryString() + "\n");
         
         if (!player.getInventory().isEmpty()) {
@@ -1897,6 +1908,607 @@ public class MainControllerNew implements Initializable {
     }
     
 
+    
+    // ===== V5.0.0 UI ROUTING METHODS =====
+    
+    /**
+     * Wire up button handlers for a loaded screen.
+     */
+    public void wireScreenButtons(String screenName, javafx.scene.Node screen) {
+        if (screen == null) return;
+        
+        switch (screenName) {
+            case "MainMenu":
+                wireMainMenuButtons(screen);
+                break;
+            case "Onboarding":
+                wireOnboardingButtons(screen);
+                break;
+            case "GameHUD":
+                wireGameHUDButtons(screen);
+                break;
+            case "CombatOverlay":
+                wireCombatOverlayButtons(screen);
+                break;
+            case "Inventory":
+                wireInventoryButtons(screen);
+                break;
+            case "Settings":
+                wireSettingsButtons(screen);
+                break;
+            case "SaveLoad":
+                wireSaveLoadButtons(screen);
+                break;
+            case "PauseMenu":
+                wirePauseMenuButtons(screen);
+                break;
+            case "QuestLog":
+                wireQuestLogButtons(screen);
+                break;
+            case "GameOver":
+                wireGameOverButtons(screen);
+                break;
+        }
+    }
+    
+    /**
+     * Wire up MainMenu button handlers.
+     */
+    private void wireMainMenuButtons(javafx.scene.Node screen) {
+        javafx.scene.control.Button newGameBtn = (javafx.scene.control.Button) screen.lookup("#newGameButton");
+        if (newGameBtn != null) {
+            newGameBtn.setOnAction(e -> showOnboarding());
+        }
+        
+        javafx.scene.control.Button continueBtn = (javafx.scene.control.Button) screen.lookup("#continueButton");
+        if (continueBtn != null) {
+            continueBtn.setOnAction(e -> loadGameAndStart());
+            continueBtn.setDisable(!SaveManager.saveExists());
+        }
+        
+        javafx.scene.control.Button loadBtn = (javafx.scene.control.Button) screen.lookup("#loadButton");
+        if (loadBtn != null) {
+            loadBtn.setOnAction(e -> showSaveLoad(true));
+        }
+        
+        javafx.scene.control.Button settingsBtn = (javafx.scene.control.Button) screen.lookup("#settingsButton");
+        if (settingsBtn != null) {
+            settingsBtn.setOnAction(e -> showSettings());
+        }
+        
+        javafx.scene.control.Button quitBtn = (javafx.scene.control.Button) screen.lookup("#quitButton");
+        if (quitBtn != null) {
+            quitBtn.setOnAction(e -> handleQuit());
+        }
+    }
+    
+    /**
+     * Wire up Onboarding button handlers.
+     */
+    private void wireOnboardingButtons(javafx.scene.Node screen) {
+        javafx.scene.control.TextField nameField = (javafx.scene.control.TextField) screen.lookup("#nameField");
+        javafx.scene.control.Button generateBtn = (javafx.scene.control.Button) screen.lookup("#generateNameButton");
+        javafx.scene.control.Button warriorBtn = (javafx.scene.control.Button) screen.lookup("#warriorButton");
+        javafx.scene.control.Button mageBtn = (javafx.scene.control.Button) screen.lookup("#mageButton");
+        javafx.scene.control.Button rogueBtn = (javafx.scene.control.Button) screen.lookup("#rogueButton");
+        javafx.scene.control.Button easyBtn = (javafx.scene.control.Button) screen.lookup("#easyButton");
+        javafx.scene.control.Button normalBtn = (javafx.scene.control.Button) screen.lookup("#normalButton");
+        javafx.scene.control.Button hardBtn = (javafx.scene.control.Button) screen.lookup("#hardButton");
+        javafx.scene.control.Button deathBtn = (javafx.scene.control.Button) screen.lookup("#deathButton");
+        javafx.scene.control.Button startBtn = (javafx.scene.control.Button) screen.lookup("#startButton");
+        
+        if (generateBtn != null && nameField != null) {
+            generateBtn.setOnAction(e -> {
+                String[] prefixes = {"Aether", "Shadow", "Crimson", "Azure", "Void", "Storm", "Frost", "Flame"};
+                String[] suffixes = {"blade", "heart", "soul", "spirit", "ward", "guard", "strike", "fury"};
+                String name = prefixes[(int)(Math.random() * prefixes.length)] + 
+                            suffixes[(int)(Math.random() * suffixes.length)];
+                nameField.setText(name);
+            });
+        }
+        
+        final Player.PlayerClass[] selectedClass = {null};
+        final String[] selectedDifficulty = {"NORMAL"};
+        
+        if (warriorBtn != null) {
+            warriorBtn.setOnAction(e -> {
+                selectedClass[0] = Player.PlayerClass.WARRIOR;
+                javafx.scene.layout.VBox diffBox = (javafx.scene.layout.VBox) screen.lookup("#difficultyBox");
+                if (diffBox != null) diffBox.setVisible(true);
+                if (startBtn != null) startBtn.setDisable(false);
+            });
+        }
+        if (mageBtn != null) {
+            mageBtn.setOnAction(e -> {
+                selectedClass[0] = Player.PlayerClass.MAGE;
+                javafx.scene.layout.VBox diffBox = (javafx.scene.layout.VBox) screen.lookup("#difficultyBox");
+                if (diffBox != null) diffBox.setVisible(true);
+                if (startBtn != null) startBtn.setDisable(false);
+            });
+        }
+        if (rogueBtn != null) {
+            rogueBtn.setOnAction(e -> {
+                selectedClass[0] = Player.PlayerClass.ROGUE;
+                javafx.scene.layout.VBox diffBox = (javafx.scene.layout.VBox) screen.lookup("#difficultyBox");
+                if (diffBox != null) diffBox.setVisible(true);
+                if (startBtn != null) startBtn.setDisable(false);
+            });
+        }
+        
+        if (easyBtn != null) easyBtn.setOnAction(e -> selectedDifficulty[0] = "EASY");
+        if (normalBtn != null) normalBtn.setOnAction(e -> selectedDifficulty[0] = "NORMAL");
+        if (hardBtn != null) hardBtn.setOnAction(e -> selectedDifficulty[0] = "HARD");
+        if (deathBtn != null) deathBtn.setOnAction(e -> selectedDifficulty[0] = "DEATH");
+        
+        if (startBtn != null && nameField != null) {
+            startBtn.setOnAction(e -> {
+                String name = nameField.getText().trim();
+                if (!name.isEmpty() && selectedClass[0] != null) {
+                    startNewGame(name, selectedClass[0], selectedDifficulty[0]);
+                }
+            });
+        }
+    }
+    
+    /**
+     * Wire up GameHUD button handlers.
+     */
+    private void wireGameHUDButtons(javafx.scene.Node screen) {
+        javafx.scene.control.Button attackBtn = (javafx.scene.control.Button) screen.lookup("#attackButton");
+        if (attackBtn != null) attackBtn.setOnAction(e -> performCombatAction("attack"));
+        
+        javafx.scene.control.Button heavyBtn = (javafx.scene.control.Button) screen.lookup("#heavyAttackButton");
+        if (heavyBtn != null) heavyBtn.setOnAction(e -> performCombatAction("heavy"));
+        
+        javafx.scene.control.Button defendBtn = (javafx.scene.control.Button) screen.lookup("#defendButton");
+        if (defendBtn != null) defendBtn.setOnAction(e -> performCombatAction("defend"));
+        
+        javafx.scene.control.Button itemBtn = (javafx.scene.control.Button) screen.lookup("#itemButton");
+        if (itemBtn != null) itemBtn.setOnAction(e -> showInventory());
+        
+        javafx.scene.control.Button runBtn = (javafx.scene.control.Button) screen.lookup("#runButton");
+        if (runBtn != null) runBtn.setOnAction(e -> performCombatAction("run"));
+        
+        javafx.scene.control.Button invBtn = (javafx.scene.control.Button) screen.lookup("#inventoryButton");
+        if (invBtn != null) invBtn.setOnAction(e -> showInventory());
+        
+        javafx.scene.control.Button questBtn = (javafx.scene.control.Button) screen.lookup("#questsButton");
+        if (questBtn != null) questBtn.setOnAction(e -> showQuestLog());
+        
+        javafx.scene.control.Button pauseBtn = (javafx.scene.control.Button) screen.lookup("#pauseButton");
+        if (pauseBtn != null) pauseBtn.setOnAction(e -> showPauseMenu());
+    }
+    
+    /**
+     * Wire up CombatOverlay button handlers.
+     */
+    private void wireCombatOverlayButtons(javafx.scene.Node screen) {
+        javafx.scene.control.Button attackBtn = (javafx.scene.control.Button) screen.lookup("#combatAttackButton");
+        if (attackBtn != null) attackBtn.setOnAction(e -> performCombatAction("attack"));
+        
+        javafx.scene.control.Button heavyBtn = (javafx.scene.control.Button) screen.lookup("#combatHeavyButton");
+        if (heavyBtn != null) heavyBtn.setOnAction(e -> performCombatAction("heavy"));
+        
+        javafx.scene.control.Button defendBtn = (javafx.scene.control.Button) screen.lookup("#combatDefendButton");
+        if (defendBtn != null) defendBtn.setOnAction(e -> performCombatAction("defend"));
+        
+        javafx.scene.control.Button itemBtn = (javafx.scene.control.Button) screen.lookup("#combatItemButton");
+        if (itemBtn != null) itemBtn.setOnAction(e -> showInventory());
+        
+        javafx.scene.control.Button runBtn = (javafx.scene.control.Button) screen.lookup("#combatRunButton");
+        if (runBtn != null) runBtn.setOnAction(e -> performCombatAction("run"));
+    }
+    
+    /**
+     * Wire up Inventory button handlers.
+     */
+    private void wireInventoryButtons(javafx.scene.Node screen) {
+        javafx.scene.control.Button closeBtn = (javafx.scene.control.Button) screen.lookup("#closeButton");
+        if (closeBtn != null) closeBtn.setOnAction(e -> resumeGame());
+        
+        // Wire filter buttons
+        javafx.scene.control.Button allBtn = (javafx.scene.control.Button) screen.lookup("#allTabButton");
+        javafx.scene.control.Button weaponsBtn = (javafx.scene.control.Button) screen.lookup("#weaponsTabButton");
+        javafx.scene.control.Button armorBtn = (javafx.scene.control.Button) screen.lookup("#armorTabButton");
+        javafx.scene.control.Button consumablesBtn = (javafx.scene.control.Button) screen.lookup("#consumablesTabButton");
+        javafx.scene.control.Button miscBtn = (javafx.scene.control.Button) screen.lookup("#miscTabButton");
+        
+        // These would filter inventory - placeholder for now
+        if (allBtn != null) allBtn.setOnAction(e -> { /* Filter all */ });
+        if (weaponsBtn != null) weaponsBtn.setOnAction(e -> { /* Filter weapons */ });
+        if (armorBtn != null) armorBtn.setOnAction(e -> { /* Filter armor */ });
+        if (consumablesBtn != null) consumablesBtn.setOnAction(e -> { /* Filter consumables */ });
+        if (miscBtn != null) miscBtn.setOnAction(e -> { /* Filter misc */ });
+        
+        // Wire item action buttons
+        javafx.scene.control.Button useBtn = (javafx.scene.control.Button) screen.lookup("#useItemButton");
+        javafx.scene.control.Button equipBtn = (javafx.scene.control.Button) screen.lookup("#equipItemButton");
+        javafx.scene.control.Button dropBtn = (javafx.scene.control.Button) screen.lookup("#dropItemButton");
+        
+        if (useBtn != null) useBtn.setOnAction(e -> { /* Use selected item */ });
+        if (equipBtn != null) equipBtn.setOnAction(e -> { /* Equip selected item */ });
+        if (dropBtn != null) dropBtn.setOnAction(e -> { /* Drop selected item */ });
+    }
+    
+    /**
+     * Wire up Settings button handlers.
+     */
+    private void wireSettingsButtons(javafx.scene.Node screen) {
+        javafx.scene.control.Button closeBtn = (javafx.scene.control.Button) screen.lookup("#closeButton");
+        if (closeBtn != null) closeBtn.setOnAction(e -> showMainMenu());
+        
+        javafx.scene.control.Button saveBtn = (javafx.scene.control.Button) screen.lookup("#saveButton");
+        if (saveBtn != null) saveBtn.setOnAction(e -> {
+            settings.save();
+            showMainMenu();
+        });
+        
+        javafx.scene.control.Button resetBtn = (javafx.scene.control.Button) screen.lookup("#resetButton");
+        if (resetBtn != null) {
+            resetBtn.setOnAction(e -> {
+                settings = new Settings();
+                // Reload settings UI
+                wireSettingsButtons(screen);
+            });
+        }
+        
+        // Wire sliders
+        javafx.scene.control.Slider masterVol = (javafx.scene.control.Slider) screen.lookup("#masterVolumeSlider");
+        javafx.scene.control.Label masterVolLabel = (javafx.scene.control.Label) screen.lookup("#masterVolumeLabel");
+        if (masterVol != null) {
+            masterVol.setValue(settings.masterVolume);
+            masterVol.valueProperty().addListener((obs, oldVal, newVal) -> {
+                settings.masterVolume = newVal.doubleValue();
+                audioManager.setMasterVolume(settings.masterVolume);
+                if (masterVolLabel != null) {
+                    masterVolLabel.setText((int)(newVal.doubleValue() * 100) + "%");
+                }
+            });
+        }
+        
+        javafx.scene.control.Slider musicVol = (javafx.scene.control.Slider) screen.lookup("#musicVolumeSlider");
+        javafx.scene.control.Label musicVolLabel = (javafx.scene.control.Label) screen.lookup("#musicVolumeLabel");
+        if (musicVol != null) {
+            musicVol.setValue(settings.musicVolume);
+            musicVol.valueProperty().addListener((obs, oldVal, newVal) -> {
+                settings.musicVolume = newVal.doubleValue();
+                audioManager.setMusicVolume(settings.musicVolume);
+                if (musicVolLabel != null) {
+                    musicVolLabel.setText((int)(newVal.doubleValue() * 100) + "%");
+                }
+            });
+        }
+        
+        javafx.scene.control.Slider sfxVol = (javafx.scene.control.Slider) screen.lookup("#sfxVolumeSlider");
+        javafx.scene.control.Label sfxVolLabel = (javafx.scene.control.Label) screen.lookup("#sfxVolumeLabel");
+        if (sfxVol != null) {
+            sfxVol.setValue(settings.sfxVolume);
+            sfxVol.valueProperty().addListener((obs, oldVal, newVal) -> {
+                settings.sfxVolume = newVal.doubleValue();
+                audioManager.setSoundVolume(settings.sfxVolume);
+                if (sfxVolLabel != null) {
+                    sfxVolLabel.setText((int)(newVal.doubleValue() * 100) + "%");
+                }
+            });
+        }
+        
+        javafx.scene.control.Slider uiScale = (javafx.scene.control.Slider) screen.lookup("#uiScaleSlider");
+        javafx.scene.control.Label uiScaleLabel = (javafx.scene.control.Label) screen.lookup("#uiScaleLabel");
+        if (uiScale != null) {
+            uiScale.setValue(settings.uiScale);
+            uiScale.valueProperty().addListener((obs, oldVal, newVal) -> {
+                settings.uiScale = newVal.doubleValue();
+                applyUiScale(settings.uiScale);
+                if (uiScaleLabel != null) {
+                    uiScaleLabel.setText((int)(newVal.doubleValue() * 100) + "%");
+                }
+            });
+        }
+        
+        javafx.scene.control.CheckBox highContrast = (javafx.scene.control.CheckBox) screen.lookup("#highContrastCheckBox");
+        if (highContrast != null) {
+            highContrast.setSelected(settings.highContrast);
+            highContrast.setOnAction(e -> {
+                settings.highContrast = highContrast.isSelected();
+                applySettings();
+            });
+        }
+        
+        javafx.scene.control.CheckBox reducedMotion = (javafx.scene.control.CheckBox) screen.lookup("#reducedMotionCheckBox");
+        if (reducedMotion != null) {
+            reducedMotion.setSelected(settings.reducedMotion);
+            reducedMotion.setOnAction(e -> settings.reducedMotion = reducedMotion.isSelected());
+        }
+        
+        javafx.scene.control.CheckBox colorBlind = (javafx.scene.control.CheckBox) screen.lookup("#colorBlindModeCheckBox");
+        if (colorBlind != null) {
+            colorBlind.setSelected(settings.colorBlindMode);
+            colorBlind.setOnAction(e -> {
+                settings.colorBlindMode = colorBlind.isSelected();
+                applySettings();
+            });
+        }
+        
+        javafx.scene.control.CheckBox confirmations = (javafx.scene.control.CheckBox) screen.lookup("#confirmationsCheckBox");
+        if (confirmations != null) {
+            confirmations.setSelected(settings.confirmations);
+            confirmations.setOnAction(e -> settings.confirmations = confirmations.isSelected());
+        }
+        
+        javafx.scene.control.CheckBox autoSave = (javafx.scene.control.CheckBox) screen.lookup("#autoSaveCheckBox");
+        if (autoSave != null) {
+            autoSave.setSelected(settings.autoSaveEnabled);
+            autoSave.setOnAction(e -> settings.autoSaveEnabled = autoSave.isSelected());
+        }
+    }
+    
+    /**
+     * Wire up SaveLoad button handlers.
+     */
+    private void wireSaveLoadButtons(javafx.scene.Node screen) {
+        javafx.scene.control.Button closeBtn = (javafx.scene.control.Button) screen.lookup("#closeButton");
+        if (closeBtn != null) closeBtn.setOnAction(e -> showMainMenu());
+        
+        javafx.scene.control.Button deleteBtn = (javafx.scene.control.Button) screen.lookup("#deleteButton");
+        if (deleteBtn != null) deleteBtn.setOnAction(e -> { /* Delete selected slot */ });
+        
+        // Wire up save slot buttons dynamically
+        javafx.scene.layout.GridPane slotsGrid = (javafx.scene.layout.GridPane) screen.lookup("#saveSlotsGrid");
+        if (slotsGrid != null) {
+            // Create save slot buttons
+            for (int i = 0; i < 6; i++) {
+                final int slot = i;
+                javafx.scene.layout.VBox slotBox = new javafx.scene.layout.VBox(5);
+                slotBox.setPadding(new javafx.geometry.Insets(10));
+                slotBox.setStyle("-fx-background-color: -color-surface; -fx-border-color: -color-border; -fx-border-width: 1px;");
+                slotBox.setPrefWidth(200);
+                slotBox.setPrefHeight(150);
+                
+                javafx.scene.control.Label slotLabel = new javafx.scene.control.Label("Slot " + (slot + 1));
+                slotLabel.setStyle("-fx-font-weight: bold;");
+                
+                javafx.scene.control.Label infoLabel = new javafx.scene.control.Label("Empty");
+                infoLabel.setWrapText(true);
+                
+                javafx.scene.control.Button actionButton = new javafx.scene.control.Button("Load");
+                actionButton.setPrefWidth(180);
+                actionButton.setOnAction(e -> loadGameFromSlot(slot));
+                
+                slotBox.getChildren().addAll(slotLabel, infoLabel, actionButton);
+                
+                int col = slot % 3;
+                int row = slot / 3;
+                slotsGrid.add(slotBox, col, row);
+                
+                // Load slot info if exists
+                SaveManager.SaveSlotInfo slotInfo = SaveManager.getSlotInfo(slot);
+                if (slotInfo != null) {
+                    infoLabel.setText(slotInfo.toString());
+                    actionButton.setText("Load");
+                }
+            }
+        }
+    }
+    
+    /**
+     * Wire up PauseMenu button handlers.
+     */
+    private void wirePauseMenuButtons(javafx.scene.Node screen) {
+        javafx.scene.control.Button resumeBtn = (javafx.scene.control.Button) screen.lookup("#resumeButton");
+        if (resumeBtn != null) resumeBtn.setOnAction(e -> resumeGame());
+        
+        javafx.scene.control.Button invBtn = (javafx.scene.control.Button) screen.lookup("#inventoryButton");
+        if (invBtn != null) invBtn.setOnAction(e -> showInventory());
+        
+        javafx.scene.control.Button settingsBtn = (javafx.scene.control.Button) screen.lookup("#settingsButton");
+        if (settingsBtn != null) settingsBtn.setOnAction(e -> showSettings());
+        
+        javafx.scene.control.Button saveBtn = (javafx.scene.control.Button) screen.lookup("#saveButton");
+        if (saveBtn != null) saveBtn.setOnAction(e -> showSaveLoad(false));
+        
+        javafx.scene.control.Button quitBtn = (javafx.scene.control.Button) screen.lookup("#quitButton");
+        if (quitBtn != null) quitBtn.setOnAction(e -> quitToMenu());
+    }
+    
+    /**
+     * Wire up QuestLog button handlers.
+     */
+    private void wireQuestLogButtons(javafx.scene.Node screen) {
+        javafx.scene.control.Button closeBtn = (javafx.scene.control.Button) screen.lookup("#closeButton");
+        if (closeBtn != null) closeBtn.setOnAction(e -> resumeGame());
+        
+        javafx.scene.control.Button activeBtn = (javafx.scene.control.Button) screen.lookup("#activeTabButton");
+        javafx.scene.control.Button completedBtn = (javafx.scene.control.Button) screen.lookup("#completedTabButton");
+        javafx.scene.control.Button allBtn = (javafx.scene.control.Button) screen.lookup("#allTabButton");
+        
+        if (activeBtn != null) activeBtn.setOnAction(e -> { /* Filter active quests */ });
+        if (completedBtn != null) completedBtn.setOnAction(e -> { /* Filter completed quests */ });
+        if (allBtn != null) allBtn.setOnAction(e -> { /* Show all quests */ });
+    }
+    
+    /**
+     * Wire up GameOver button handlers.
+     */
+    private void wireGameOverButtons(javafx.scene.Node screen) {
+        javafx.scene.control.Button retryBtn = (javafx.scene.control.Button) screen.lookup("#retryButton");
+        if (retryBtn != null) retryBtn.setOnAction(e -> startNewGameFromMenu());
+        
+        javafx.scene.control.Button menuBtn = (javafx.scene.control.Button) screen.lookup("#mainMenuButton");
+        if (menuBtn != null) menuBtn.setOnAction(e -> showMainMenu());
+    }
+    
+    /**
+     * Show the main menu screen.
+     */
+    public void showMainMenu() {
+        if (uiRouter != null) {
+            uiRouter.navigateTo("MainMenu");
+            audioManager.setGameStateMusic("menu");
+        }
+    }
+    
+    /**
+     * Show the onboarding/character creation screen.
+     */
+    public void showOnboarding() {
+        if (uiRouter != null) {
+            uiRouter.navigateTo("Onboarding");
+        }
+    }
+    
+    /**
+     * Start a new game with character details.
+     */
+    public void startNewGame(String playerName, Player.PlayerClass playerClass, String difficulty) {
+        this.player = new Player(playerName, playerClass);
+        this.difficulty = difficulty;
+        this.gameState.resetGame();
+        this.isGameRunning = true;
+        
+        syncPlayerToGameState();
+        
+        if (uiRouter != null) {
+            uiRouter.navigateTo("GameHUD");
+            audioManager.setGameStateMusic("dungeon");
+        }
+        
+        startGameplay();
+    }
+    
+    /**
+     * Start new game from menu (for retry).
+     */
+    public void startNewGameFromMenu() {
+        showOnboarding();
+    }
+    
+    /**
+     * Load game and start playing.
+     */
+    public void loadGameAndStart() {
+        loadSavedGame();
+        if (isGameRunning && uiRouter != null) {
+            uiRouter.navigateTo("GameHUD");
+            audioManager.setGameStateMusic("dungeon");
+        }
+    }
+    
+    /**
+     * Show save/load screen.
+     */
+    public void showSaveLoad(boolean loadMode) {
+        if (uiRouter != null) {
+            uiRouter.navigateTo("SaveLoad");
+            // TODO: Set load mode on controller
+        }
+    }
+    
+    /**
+     * Save game to a specific slot.
+     */
+    public void saveGameToSlot(int slot) {
+        if (player != null && isGameRunning) {
+            syncPlayerToGameState();
+            SaveManager.saveGameToSlot(slot, player, gameState.getLevel());
+            showMainMenu();
+        }
+    }
+    
+    /**
+     * Load game from a specific slot.
+     */
+    public void loadGameFromSlot(int slot) {
+        SaveManager.SaveData saveData = SaveManager.loadGameFromSlot(slot);
+        if (saveData != null) {
+            // Restore player state (simplified)
+            loadSavedGame();
+            if (isGameRunning && uiRouter != null) {
+                uiRouter.navigateTo("GameHUD");
+            }
+        }
+    }
+    
+    /**
+     * Show settings screen.
+     */
+    public void showSettings() {
+        if (uiRouter != null) {
+            uiRouter.navigateTo("Settings");
+        }
+    }
+    
+    /**
+     * Show inventory screen.
+     */
+    public void showInventory() {
+        if (uiRouter != null) {
+            uiRouter.navigateTo("Inventory");
+            // TODO: Set player on inventory controller
+        }
+    }
+    
+    /**
+     * Show quest log screen.
+     */
+    public void showQuestLog() {
+        if (uiRouter != null) {
+            uiRouter.navigateTo("QuestLog");
+        }
+    }
+    
+    /**
+     * Show pause menu.
+     */
+    public void showPauseMenu() {
+        if (uiRouter != null) {
+            uiRouter.navigateTo("PauseMenu");
+        }
+    }
+    
+    /**
+     * Resume game from pause.
+     */
+    public void resumeGame() {
+        if (uiRouter != null && isGameRunning) {
+            uiRouter.navigateTo("GameHUD");
+        }
+    }
+    
+    /**
+     * Quit to main menu.
+     */
+    public void quitToMenu() {
+        isGameRunning = false;
+        showMainMenu();
+    }
+    
+    /**
+     * Handle quit action.
+     */
+    public void handleQuit() {
+        javafx.application.Platform.exit();
+    }
+    
+    /**
+     * Perform a combat action.
+     */
+    public void performCombatAction(String action) {
+        if (currentMonster != null && currentMonster.isAlive()) {
+            processCombatAction(action.toLowerCase());
+        }
+    }
+    
+    /**
+     * Apply UI scale.
+     */
+    public void applyUiScale(double scale) {
+        if (rootContainer != null && rootContainer.getScene() != null) {
+            rootContainer.getScene().getRoot().setScaleX(scale);
+            rootContainer.getScene().getRoot().setScaleY(scale);
+        }
+    }
+    
+    // Note: applySettings() method already exists above, no need to duplicate
     
     // ===== LEGACY GAMESTATE CLASS FOR COMPATIBILITY =====
     private static class GameState {

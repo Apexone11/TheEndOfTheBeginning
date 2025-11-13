@@ -37,6 +37,10 @@ public class SaveManager {
         return getSaveDirectory().resolve("savegame.txt");
     }
     
+    private static Path getSaveFile(int slot) {
+        return getSaveDirectory().resolve("savegame_slot" + slot + ".txt");
+    }
+    
     private static Path getAutosaveFile() {
         return getSaveDirectory().resolve("autosave.txt");
     }
@@ -305,6 +309,145 @@ public class SaveManager {
      */
     public static SaveData getLatestSave() {
         return loadGame();
+    }
+    
+    /**
+     * Save game to a specific slot (v5.0.0 - Multi-slot support).
+     * 
+     * @param slot Slot number (0-5)
+     * @param player The player object to save
+     * @param dungeonLevel Current dungeon level
+     * @return true if save was successful
+     */
+    public static boolean saveGameToSlot(int slot, Player player, int dungeonLevel) {
+        try {
+            Path saveFile = getSaveFile(slot);
+            Files.createDirectories(saveFile.getParent());
+            
+            GameSaveData gameData = new GameSaveData();
+            gameData.playTimeMinutes = 0; // TODO: Track playtime
+            
+            StringBuilder saveData = new StringBuilder();
+            saveData.append("# Save Slot ").append(slot + 1).append("\n");
+            saveData.append("# Saved: ").append(LocalDateTime.now().format(
+                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))).append("\n\n");
+            
+            saveData.append("SLOT=").append(slot).append("\n");
+            saveData.append("NAME=").append(player.getName()).append("\n");
+            saveData.append("CLASS=").append(player.getPlayerClass().name()).append("\n");
+            saveData.append("LEVEL=").append(player.getLevel()).append("\n");
+            saveData.append("DUNGEON_LEVEL=").append(dungeonLevel).append("\n");
+            saveData.append("HEALTH=").append(player.getHealth()).append("/").append(player.getMaxHealth()).append("\n");
+            
+            try (BufferedWriter writer = Files.newBufferedWriter(saveFile)) {
+                writer.write(saveData.toString());
+            }
+            
+            return true;
+        } catch (IOException e) {
+            System.err.println("Error saving to slot " + slot + ": " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Load game from a specific slot.
+     * 
+     * @param slot Slot number (0-5)
+     * @return SaveData object or null if load failed
+     */
+    public static SaveData loadGameFromSlot(int slot) {
+        try {
+            Path saveFile = getSaveFile(slot);
+            if (!Files.exists(saveFile)) {
+                return null;
+            }
+            
+            return loadGame(); // Reuse existing load logic for now
+        } catch (Exception e) {
+            System.err.println("Error loading from slot " + slot + ": " + e.getMessage());
+            return null;
+        }
+    }
+    
+    /**
+     * Get save slot information for display.
+     */
+    public static SaveSlotInfo getSlotInfo(int slot) {
+        try {
+            Path saveFile = getSaveFile(slot);
+            if (!Files.exists(saveFile)) {
+                return null;
+            }
+            
+            SaveSlotInfo info = new SaveSlotInfo();
+            info.slot = slot;
+            info.exists = true;
+            info.timestamp = Files.getLastModifiedTime(saveFile).toInstant();
+            
+            // Read basic info from file
+            String content = new String(Files.readAllBytes(saveFile));
+            for (String line : content.split("\n")) {
+                if (line.startsWith("NAME=")) {
+                    info.playerName = line.substring(5).trim();
+                } else if (line.startsWith("LEVEL=")) {
+                    try {
+                        info.playerLevel = Integer.parseInt(line.substring(6).trim());
+                    } catch (NumberFormatException e) {
+                        // Ignore
+                    }
+                } else if (line.startsWith("DUNGEON_LEVEL=")) {
+                    try {
+                        info.dungeonLevel = Integer.parseInt(line.substring(14).trim());
+                    } catch (NumberFormatException e) {
+                        // Ignore
+                    }
+                }
+            }
+            
+            return info;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    /**
+     * Delete a save slot.
+     */
+    public static boolean deleteSlot(int slot) {
+        try {
+            Path saveFile = getSaveFile(slot);
+            if (Files.exists(saveFile)) {
+                Files.delete(saveFile);
+                return true;
+            }
+            return false;
+        } catch (IOException e) {
+            System.err.println("Error deleting slot " + slot + ": " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Save slot information for UI display.
+     */
+    public static class SaveSlotInfo {
+        public int slot;
+        public boolean exists;
+        public String playerName = "Unknown";
+        public int playerLevel = 1;
+        public int dungeonLevel = 1;
+        public java.time.Instant timestamp;
+        
+        @Override
+        public String toString() {
+            if (!exists) {
+                return "Empty";
+            }
+            return playerName + " - Level " + playerLevel + "\nFloor " + dungeonLevel + 
+                   "\n" + java.time.format.DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
+                   .format(java.time.LocalDateTime.ofInstant(timestamp, java.time.ZoneId.systemDefault()));
+        }
     }
     
     // ===== HELPER METHODS =====

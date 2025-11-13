@@ -1,9 +1,13 @@
 package gameproject;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import gameproject.combat.CombatEngine;
 import main.model.Player;
-import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Test suite for CombatEngine defensive stance and heavy attack functionality.
@@ -68,25 +72,50 @@ public class CombatEngineDefendAndHeavyTest {
     void testHeavyAttackDealsMoreDamageThanNormal() {
         // Ensure player has enough mana
         testPlayer.setMana(50);
-        
-        // Perform normal attack
-        CombatEngine.CombatResult normalResult = CombatEngine.playerAttackMonster(
-            testPlayer, testMonster, CombatEngine.AttackType.NORMAL_ATTACK);
-        
-        // Reset monster health
-        testMonster = Monster.createGoblin(1);
-        
-        // Perform heavy attack (simulating mana consumption)
-        testPlayer.setMana(testPlayer.getMana() - 10);
-        CombatEngine.CombatResult heavyResult = CombatEngine.playerAttackMonster(
-            testPlayer, testMonster, CombatEngine.AttackType.HEAVY_ATTACK);
-        
-        // Heavy attack should deal more damage (when it hits)
-        if (heavyResult.result != CombatEngine.AttackResult.MISS && 
-            normalResult.result != CombatEngine.AttackResult.MISS) {
-            assertTrue(heavyResult.damage >= normalResult.damage, 
-                "Heavy attack should deal at least as much damage as normal attack");
+
+        // Run multiple attacks to account for randomness
+        int normalTotalDamage = 0;
+        int heavyTotalDamage = 0;
+        int successfulNormalAttacks = 0;
+        int successfulHeavyAttacks = 0;
+
+        // Run 20 attacks of each type to get average
+        for (int i = 0; i < 20; i++) {
+            // Create fresh monsters for each test
+            Monster normalMonster = Monster.createGoblin(1);
+            Monster heavyMonster = Monster.createGoblin(1);
+
+            // Perform normal attack
+            CombatEngine.CombatResult normalResult = CombatEngine.playerAttackMonster(
+                testPlayer, normalMonster, CombatEngine.AttackType.NORMAL_ATTACK);
+
+            // Perform heavy attack (simulate mana consumption)
+            testPlayer.setMana(testPlayer.getMana() - 10);
+            CombatEngine.CombatResult heavyResult = CombatEngine.playerAttackMonster(
+                testPlayer, heavyMonster, CombatEngine.AttackType.HEAVY_ATTACK);
+
+            // Only count successful hits
+            if (normalResult.result != CombatEngine.AttackResult.MISS) {
+                normalTotalDamage += normalResult.damage;
+                successfulNormalAttacks++;
+            }
+            if (heavyResult.result != CombatEngine.AttackResult.MISS) {
+                heavyTotalDamage += heavyResult.damage;
+                successfulHeavyAttacks++;
+            }
+
+            // Reset mana for next iteration
+            testPlayer.setMana(50);
         }
+
+        // Calculate averages
+        double avgNormalDamage = successfulNormalAttacks > 0 ? (double) normalTotalDamage / successfulNormalAttacks : 0;
+        double avgHeavyDamage = successfulHeavyAttacks > 0 ? (double) heavyTotalDamage / successfulHeavyAttacks : 0;
+
+        // Heavy attack should deal significantly more damage on average
+        assertTrue(avgHeavyDamage > avgNormalDamage * 1.2,
+            String.format("Heavy attack average damage (%.1f) should be > 20%% higher than normal attack (%.1f)",
+                avgHeavyDamage, avgNormalDamage));
     }
     
     @Test

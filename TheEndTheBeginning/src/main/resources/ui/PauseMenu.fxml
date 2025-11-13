@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+      spacing="20.0" alignment="CENTER">
+   <padding>
+      <Insets top="60.0" bottom="60.0" left="40.0" right="40.0" />
+   </padding>
+   
+   <Label text="PAUSED" style="-fx-font-size: 32px; -fx-font-weight: bold;" />
+   
+   <VBox spacing="15.0" alignment="CENTER" prefWidth="300.0">
+      <Button fx:id="resumeButton" text="Resume" styleClass="btn-primary" 
+             prefWidth="250.0" prefHeight="45.0">
+         <graphic>
+            <FontIcon iconLiteral="fas-play" iconSize="18" />
+         </graphic>
+      </Button>
+      
+      <Button fx:id="inventoryButton" text="Inventory" styleClass="btn-accent" 
+             prefWidth="250.0" prefHeight="45.0">
+         <graphic>
+            <FontIcon iconLiteral="fas-box" iconSize="18" />
+         </graphic>
+      </Button>
+      
+      <Button fx:id="settingsButton" text="Settings" styleClass="btn-accent" 
+             prefWidth="250.0" prefHeight="45.0">
+         <graphic>
+            <FontIcon iconLiteral="fas-cog" iconSize="18" />
+         </graphic>
+      </Button>
+      
+      <Button fx:id="saveButton" text="Save Game" styleClass="button" 
+             prefWidth="250.0" prefHeight="45.0">
+         <graphic>
+            <FontIcon iconLiteral="fas-save" iconSize="18" />
+         </graphic>
+      </Button>
+      
+      <Separator prefWidth="200.0">
+         <VBox.margin>
+            <Insets top="10.0" bottom="10.0" />
+         </VBox.margin>
+      </Separator>
+      
+      <Button fx:id="quitButton" text="Quit to Menu" styleClass="button" 
+             prefWidth="250.0" prefHeight="45.0">
+         <graphic>
+            <FontIcon iconLiteral="fas-sign-out-alt" iconSize="18" />
+         </graphic>
+      </Button>
+   </VBox>
+</VBox>
+

@@ -20,6 +20,15 @@ public final class Settings {
     public boolean confirmations = true;
     public boolean sfxEnabled = false; // Default off
     
+    // v5.0.0 - New UI and Audio settings
+    public double uiScale = 1.0;
+    public boolean reducedMotion = false;
+    public boolean colorBlindMode = false;
+    public double masterVolume = 1.0;
+    public double musicVolume = 0.5;
+    public double sfxVolume = 0.7;
+    public boolean autoSaveEnabled = true;
+    
     /**
      * Loads settings from disk.
      * 
@@ -44,6 +53,13 @@ public final class Settings {
                                 case "textSpeedMs" -> settings.textSpeedMs = Integer.parseInt(value);
                                 case "confirmations" -> settings.confirmations = Boolean.parseBoolean(value);
                                 case "sfxEnabled" -> settings.sfxEnabled = Boolean.parseBoolean(value);
+                                case "uiScale" -> settings.uiScale = Double.parseDouble(value);
+                                case "reducedMotion" -> settings.reducedMotion = Boolean.parseBoolean(value);
+                                case "colorBlindMode" -> settings.colorBlindMode = Boolean.parseBoolean(value);
+                                case "masterVolume" -> settings.masterVolume = Double.parseDouble(value);
+                                case "musicVolume" -> settings.musicVolume = Double.parseDouble(value);
+                                case "sfxVolume" -> settings.sfxVolume = Double.parseDouble(value);
+                                case "autoSaveEnabled" -> settings.autoSaveEnabled = Boolean.parseBoolean(value);
                             }
                         }
                     }
@@ -70,11 +86,18 @@ public final class Settings {
             // Write settings
             Path configPath = Paths.get(CONFIG_FILE);
             try (BufferedWriter writer = Files.newBufferedWriter(configPath)) {
-                writer.write("# The End The Beginning - Configuration v3.1.0\n");
+                writer.write("# The End The Beginning - Configuration v5.0.0\n");
                 writer.write("highContrast=" + highContrast + "\n");
                 writer.write("textSpeedMs=" + textSpeedMs + "\n");
                 writer.write("confirmations=" + confirmations + "\n");
                 writer.write("sfxEnabled=" + sfxEnabled + "\n");
+                writer.write("uiScale=" + uiScale + "\n");
+                writer.write("reducedMotion=" + reducedMotion + "\n");
+                writer.write("colorBlindMode=" + colorBlindMode + "\n");
+                writer.write("masterVolume=" + masterVolume + "\n");
+                writer.write("musicVolume=" + musicVolume + "\n");
+                writer.write("sfxVolume=" + sfxVolume + "\n");
+                writer.write("autoSaveEnabled=" + autoSaveEnabled + "\n");
             }
             
             return true;

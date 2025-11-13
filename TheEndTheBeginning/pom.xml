@@ -145,23 +145,36 @@
                 </executions>
             </plugin>
 
-            <!-- Badass JLink Plugin for creating custom runtime and Windows installer -->
+            <!-- Maven JLink Plugin for creating custom runtime -->
             <plugin>
-                <groupId>org.beryx</groupId>
-                <artifactId>badass-jlink-plugin</artifactId>
-                <version>2.25.0</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jlink-plugin</artifactId>
+                <version>3.2.0</version>
+                <extensions>true</extensions>
                 <configuration>
-                    <imageName>TheEndTheBeginning</imageName>
-                    <launcher>TheEndTheBeginning</launcher>
-                    <jpackage>
-                        <installerName>TheEndTheBeginning-Setup</installerName>
-                        <installerType>exe</installerType>
-                        <winMenu>true</winMenu>
-                        <winShortcut>true</winShortcut>
-                        <icon>${project.basedir}/src/main/resources/icons/iconimage.ico</icon>
-                        <vendor>Abdul Fornah</vendor>
-                        <appVersion>${project.version}</appVersion>
-                    </jpackage>
+                    <noHeaderFiles>true</noHeaderFiles>
+                    <noManPages>true</noManPages>
+                    <stripDebug>true</stripDebug>
+                    <launcher>game=gameproject.TheEndTheBeginning</launcher>
+                    <outputDirectoryName>TheEndTheBeginning</outputDirectoryName>
+                </configuration>
+            </plugin>
+
+            <!-- Maven JPackage Plugin for creating Windows installer -->
+            <plugin>
+                <groupId>org.panteleyev</groupId>
+                <artifactId>jpackage-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <name>TheEndTheBeginning</name>
+                    <appVersion>${project.version}</appVersion>
+                    <vendor>Abdul Fornah</vendor>
+                    <description>The End The Beginning - Dungeon Escape Game</description>
+                    <icon>${project.basedir}/src/main/resources/icons/iconimage.ico</icon>
+                    <input>${project.build.directory}\jlink\TheEndTheBeginning</input>
+                    <dest>${project.build.directory}\jpackage</dest>
+                    <winMenu>true</winMenu>
+                    <winShortcut>true</winShortcut>
                 </configuration>
             </plugin>
         </plugins>

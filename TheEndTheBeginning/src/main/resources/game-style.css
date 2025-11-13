@@ -1,49 +1,90 @@
 /* 
- * GAME STYLESHEET - The End The Beginning: Dungeon Escape v3.0
- * A dark, atmospheric theme perfect for dungeon exploration
+ * GAME STYLESHEET - The End The Beginning: Dungeon Escape v5.0.0
+ * Dark Fantasy Theme with Design Tokens
  * Enhanced with improved animations and visual feedback
  * Author: Abdul Fornah
  */
 
-/* ===== ROOT VARIABLES ===== */
+/* ===== DESIGN TOKENS - Dark Fantasy Theme ===== */
 .root {
-    /* Color Palette - Enhanced */
-    -fx-dark-bg: #1a1a1a;
-    -fx-darker-bg: #0d0d0d;
-    -fx-accent: #b8860b;
-    -fx-accent-hover: #daa520;
-    -fx-danger: #8b0000;
-    -fx-success: #006400;
-    -fx-text-primary: #f0f0f0;
-    -fx-text-secondary: #cccccc;
-    -fx-text-muted: #888888;
+    /* Color Tokens - Dark Fantasy Palette */
+    -color-bg: #0a0a0a;
+    -color-surface: #1a1a1a;
+    -color-surface-elevated: #262626;
+    -color-surface-hover: #2a2a2a;
+    -color-primary: #8b4513;
+    -color-primary-hover: #a0522d;
+    -color-accent: #b8860b;
+    -color-accent-hover: #daa520;
+    -color-danger: #8b0000;
+    -color-danger-hover: #a00000;
+    -color-success: #006400;
+    -color-success-hover: #008000;
+    -color-text: #f0f0f0;
+    -color-text-muted: #888888;
+    -color-text-disabled: #555555;
+    -color-border: #444444;
+    -color-border-focus: #b8860b;
+    
+    /* Glow Effects */
     -fx-glow-gold: rgba(218, 165, 32, 0.6);
     -fx-glow-red: rgba(220, 20, 60, 0.6);
     -fx-glow-green: rgba(50, 205, 50, 0.6);
+    -fx-glow-primary: rgba(139, 69, 19, 0.5);
     
-    /* Spacing */
-    -fx-spacing-small: 5px;
-    -fx-spacing-medium: 10px;
-    -fx-spacing-large: 15px;
+    /* Spacing Tokens */
+    -spacing-xs: 4px;
+    -spacing-sm: 8px;
+    -spacing-md: 12px;
+    -spacing-lg: 16px;
+    -spacing-xl: 24px;
+    -spacing-xxl: 32px;
     
-    /* Fonts */
+    /* Border Radius Tokens */
+    -radius-sm: 4px;
+    -radius-md: 8px;
+    -radius-lg: 12px;
+    -radius-xl: 16px;
+    -radius-full: 9999px;
+    
+    /* Font Tokens */
     -fx-font-family-title: "Segoe UI Black", "Arial Black", sans-serif;
     -fx-font-family-body: "Segoe UI", "Arial", sans-serif;
     -fx-font-family-mono: "Consolas", "Courier New", monospace;
+    
+    /* Legacy compatibility - map to new tokens */
+    -fx-dark-bg: -color-bg;
+    -fx-darker-bg: -color-surface;
+    -fx-accent: -color-accent;
+    -fx-accent-hover: -color-accent-hover;
+    -fx-danger: -color-danger;
+    -fx-success: -color-success;
+    -fx-text-primary: -color-text;
+    -fx-text-secondary: -color-text;
+    -fx-text-muted: -color-text-muted;
+    -fx-spacing-small: -spacing-sm;
+    -fx-spacing-medium: -spacing-md;
+    -fx-spacing-large: -spacing-lg;
 }
 
 /* ===== MAIN CONTAINER ===== */
 .root {
-    -fx-background-color: -fx-dark-bg;
-    -fx-text-fill: -fx-text-primary;
+    -fx-background-color: -color-bg;
+    -fx-text-fill: -color-text;
     -fx-font-family: -fx-font-family-body;
+    -fx-base: -color-bg;
 }
 
 /* Main VBox container - Enhanced gradient */
 VBox {
-    -fx-background-color: linear-gradient(to bottom, #1a1a1a 0%, #0d0d0d 50%, #1a1a1a 100%);
-    -fx-padding: 20px;
-    -fx-spacing: -fx-spacing-large;
+    -fx-background-color: linear-gradient(to bottom, -color-surface 0%, -color-bg 50%, -color-surface 100%);
+    -fx-padding: -spacing-xl;
+    -fx-spacing: -spacing-lg;
+}
+
+/* StackPane for screen routing */
+StackPane {
+    -fx-background-color: -color-bg;
 }
 
 /* ===== TITLE STYLING ===== */
@@ -170,17 +211,38 @@ VBox {
 
 /* ===== BUTTONS ===== */
 .button {
-    -fx-background-color: linear-gradient(to bottom, #555555, #404040);
-    -fx-text-fill: -fx-text-primary;
-    -fx-border-color: #777777;
+    -fx-background-color: linear-gradient(to bottom, -color-surface-elevated, -color-surface);
+    -fx-text-fill: -color-text;
+    -fx-border-color: -color-border;
     -fx-border-width: 1px;
-    -fx-border-radius: 6px;
-    -fx-background-radius: 6px;
-    -fx-padding: 10px 20px;
+    -fx-border-radius: -radius-md;
+    -fx-background-radius: -radius-md;
+    -fx-padding: -spacing-md -spacing-lg;
     -fx-font-size: 13px;
     -fx-font-weight: bold;
     -fx-cursor: hand;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.6), 4, 0.3, 0, 2);
+}
+
+.btn-primary {
+    -fx-background-color: linear-gradient(to bottom, -color-primary, derive(-color-primary, -20%));
+    -fx-text-fill: -color-text;
+    -fx-border-color: -color-primary-hover;
+}
+
+.btn-primary:hover {
+    -fx-background-color: linear-gradient(to bottom, -color-primary-hover, -color-primary);
+    -fx-border-color: -color-accent;
+}
+
+.btn-accent {
+    -fx-background-color: linear-gradient(to bottom, -color-accent, derive(-color-accent, -20%));
+    -fx-text-fill: #000000;
+    -fx-border-color: -color-accent-hover;
+}
+
+.btn-accent:hover {
+    -fx-background-color: linear-gradient(to bottom, -color-accent-hover, -color-accent);
 }
 
 .button:hover {

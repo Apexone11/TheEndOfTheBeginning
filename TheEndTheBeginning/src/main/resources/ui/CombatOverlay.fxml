@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid?>
+
+<VBox xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+      spacing="20.0" alignment="CENTER" styleClass="combat-overlay">
+   <padding>
+      <Insets top="40.0" bottom="40.0" left="40.0" right="40.0" />
+   </padding>
+   
+   <!-- Monster Info -->
+   <VBox spacing="10.0" alignment="CENTER" styleClass="monster-info-panel">
+      <Label fx:id="monsterNameLabel" text="Monster Name" 
+             style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+      <Label fx:id="monsterTypeLabel" text="Type" 
+             style="-fx-font-size: 14px; -fx-text-fill: -color-text-muted;" />
+      <HBox spacing="20.0" alignment="CENTER">
+         <Label fx:id="monsterHealthLabel" text="HP: 100/100" />
+         <ProgressBar fx:id="monsterHealthBar" prefWidth="300.0" progress="1.0" 
+                     styleClass="health-progress" />
+      </HBox>
+   </VBox>
+   
+   <!-- Combat Actions -->
+   <VBox spacing="15.0" alignment="CENTER" prefWidth="600.0">
+      <Label text="Choose Your Action:" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+      
+      <HBox spacing="15.0" alignment="CENTER">
+         <Button fx:id="combatAttackButton" text="Attack" styleClass="combat-button btn-primary" 
+                 prefWidth="140.0" prefHeight="50.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-sword" iconSize="20" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Standard attack with balanced damage" />
+            </tooltip>
+         </Button>
+         
+         <Button fx:id="combatHeavyButton" text="Heavy Attack" styleClass="combat-button btn-primary" 
+                 prefWidth="140.0" prefHeight="50.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-bolt" iconSize="20" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="High damage attack (costs mana)" />
+            </tooltip>
+         </Button>
+         
+         <Button fx:id="combatDefendButton" text="Defend" styleClass="combat-button btn-primary" 
+                 prefWidth="140.0" prefHeight="50.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-shield-alt" iconSize="20" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Reduce incoming damage this turn" />
+            </tooltip>
+         </Button>
+      </HBox>
+      
+      <HBox spacing="15.0" alignment="CENTER">
+         <Button fx:id="combatItemButton" text="Use Item" styleClass="combat-button btn-accent" 
+                 prefWidth="140.0" prefHeight="50.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-flask" iconSize="20" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Use an item from inventory" />
+            </tooltip>
+         </Button>
+         
+         <Button fx:id="combatSkillButton" text="Skill" styleClass="combat-button btn-accent" 
+                 prefWidth="140.0" prefHeight="50.0" disable="true">
+            <graphic>
+               <FontIcon iconLiteral="fas-magic" iconSize="20" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Use a special skill" />
+            </tooltip>
+         </Button>
+         
+         <Button fx:id="combatRunButton" text="Run" styleClass="combat-button" 
+                 prefWidth="140.0" prefHeight="50.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-running" iconSize="20" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Try to escape from combat" />
+            </tooltip>
+         </Button>
+      </HBox>
+   </VBox>
+   
+   <!-- Combat Status -->
+   <VBox fx:id="combatStatusBox" spacing="5.0" alignment="CENTER" visible="false">
+      <Label fx:id="combatStatusLabel" text="" style="-fx-font-size: 14px;" />
+   </VBox>
+</VBox>
+

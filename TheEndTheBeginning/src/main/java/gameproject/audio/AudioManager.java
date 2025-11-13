@@ -29,6 +29,7 @@ public class AudioManager {
     private static AudioManager instance;
     private boolean soundEnabled;
     private boolean musicEnabled;
+    private double masterVolume;
     private double soundVolume;
     private double musicVolume;
     
@@ -53,6 +54,7 @@ public class AudioManager {
     private AudioManager() {
         this.soundEnabled = true;
         this.musicEnabled = true;
+        this.masterVolume = 1.0;
         this.soundVolume = 0.7;
         this.musicVolume = 0.5;
         this.soundRegistry = new HashMap<>();
@@ -130,11 +132,14 @@ public class AudioManager {
     public void playSound(String soundName, double volume) {
         if (!soundEnabled) return;
         
+        // Apply master volume
+        double finalVolume = volume * masterVolume;
+        
         String soundPath = soundRegistry.get(soundName);
         if (soundPath != null) {
             // Framework implementation - would integrate with audio library
             System.out.println("[AUDIO] Playing sound: " + soundName + 
-                             " (volume: " + String.format("%.2f", volume) + ") -> " + soundPath);
+                             " (volume: " + String.format("%.2f", finalVolume) + ") -> " + soundPath);
         } else {
             System.out.println("[AUDIO] Sound not found: " + soundName);
         }
@@ -177,8 +182,8 @@ public class AudioManager {
             Media media = new Media(mediaUrl.toExternalForm());
             currentMediaPlayer = new MediaPlayer(media);
             
-            // Set volume and looping
-            currentMediaPlayer.setVolume(musicVolume);
+            // Set volume and looping (apply master volume)
+            currentMediaPlayer.setVolume(musicVolume * masterVolume);
             if (loop) {
                 currentMediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
             } else {
@@ -360,14 +365,28 @@ public class AudioManager {
         
         // Apply volume change to current music if playing
         if (isPlayingMusic && currentMediaPlayer != null) {
-            currentMediaPlayer.setVolume(musicVolume);
+            currentMediaPlayer.setVolume(musicVolume * masterVolume);
             System.out.println("[AUDIO] Applied volume change to current track: " + currentTrack);
+        }
+    }
+    
+    /**
+     * Set master volume (v5.0.0).
+     */
+    public void setMasterVolume(double volume) {
+        this.masterVolume = Math.max(0.0, Math.min(1.0, volume));
+        System.out.println("[AUDIO] Master volume set to: " + String.format("%.2f", this.masterVolume));
+        
+        // Apply to current music if playing
+        if (isPlayingMusic && currentMediaPlayer != null) {
+            currentMediaPlayer.setVolume(musicVolume * masterVolume);
         }
     }
     
     // Getters
     public boolean isSoundEnabled() { return soundEnabled; }
     public boolean isMusicEnabled() { return musicEnabled; }
+    public double getMasterVolume() { return masterVolume; }
     public double getSoundVolume() { return soundVolume; }
     public double getMusicVolume() { return musicVolume; }
     public String getCurrentTrack() { return currentTrack; }

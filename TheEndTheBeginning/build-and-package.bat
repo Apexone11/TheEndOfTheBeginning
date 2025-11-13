@@ -1,13 +1,9 @@
 @echo off
-REM Build and Package Script for The End The Beginning
-REM This script compiles, tests, and creates the Windows installer
-
 echo ========================================
 echo Building The End The Beginning v4.0.0
 echo ========================================
 echo.
 
-REM Check if Maven Wrapper is available
 if not exist "mvnw.cmd" (
     echo ERROR: Maven Wrapper (mvnw.cmd) not found!
     echo Please ensure mvnw.cmd is in the current directory.

@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.kordamp.ikonli.javafx.FontIcon?>
+<?import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+            styleClass="root">
+   
+   <!-- Top Bar: Player Stats -->
+   <top>
+      <HBox spacing="20.0" alignment="CENTER_LEFT" styleClass="hud-top-bar">
+         <padding>
+            <Insets top="10.0" bottom="10.0" left="20.0" right="20.0" />
+         </padding>
+         
+         <!-- Player Vitals -->
+         <VBox spacing="5.0">
+            <Label fx:id="playerNameLabel" text="Player" style="-fx-font-weight: bold; -fx-font-size: 14px;" />
+            <HBox spacing="15.0">
+               <VBox spacing="2.0">
+                  <Label text="HP" style="-fx-font-size: 10px; -fx-text-fill: -color-text-muted;" />
+                  <ProgressBar fx:id="healthBar" prefWidth="150.0" styleClass="health-progress" progress="1.0" />
+                  <Label fx:id="healthLabel" text="100/100" style="-fx-font-size: 11px;" />
+               </VBox>
+               
+               <VBox spacing="2.0">
+                  <Label text="MP" style="-fx-font-size: 10px; -fx-text-fill: -color-text-muted;" />
+                  <ProgressBar fx:id="manaBar" prefWidth="120.0" styleClass="mana-progress" progress="1.0" />
+                  <Label fx:id="manaLabel" text="50/50" style="-fx-font-size: 11px;" />
+               </VBox>
+               
+               <VBox spacing="2.0">
+                  <Label text="EXP" style="-fx-font-size: 10px; -fx-text-fill: -color-text-muted;" />
+                  <ProgressBar fx:id="expBar" prefWidth="120.0" styleClass="exp-progress" progress="0.0" />
+                  <Label fx:id="levelLabel" text="Level 1" style="-fx-font-size: 11px;" />
+               </VBox>
+            </HBox>
+         </VBox>
+         
+         <Region HBox.hgrow="ALWAYS" />
+         
+         <!-- Mini Quest Info -->
+         <VBox fx:id="questInfoBox" spacing="3.0" alignment="CENTER_RIGHT" visible="false">
+            <Label text="Quest:" style="-fx-font-size: 10px; -fx-text-fill: -color-text-muted;" />
+            <Label fx:id="questTitleLabel" text="No active quest" 
+                   style="-fx-font-size: 12px; -fx-font-weight: bold;" />
+            <ProgressBar fx:id="questProgressBar" prefWidth="150.0" progress="0.0" />
+         </VBox>
+      </HBox>
+   </top>
+   
+   <!-- Center: Game Content Area -->
+   <center>
+      <ScrollPane fitToWidth="true" styleClass="game-scroll-pane">
+         <content>
+            <TextArea fx:id="gameTextArea" editable="false" wrapText="true" 
+                     styleClass="game-text-area" prefRowCount="20" />
+         </content>
+      </ScrollPane>
+   </center>
+   
+   <!-- Bottom: Action Bar -->
+   <bottom>
+      <HBox spacing="10.0" alignment="CENTER" styleClass="hud-action-bar">
+         <padding>
+            <Insets top="10.0" bottom="10.0" left="20.0" right="20.0" />
+         </padding>
+         
+         <Button fx:id="attackButton" text="Attack" styleClass="combat-button" 
+                 prefWidth="100.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-sword" iconSize="16" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Normal Attack (1)" />
+            </tooltip>
+         </Button>
+         
+         <Button fx:id="heavyAttackButton" text="Heavy" styleClass="combat-button" 
+                 prefWidth="100.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-bolt" iconSize="16" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Heavy Attack - Costs Mana (3)" />
+            </tooltip>
+         </Button>
+         
+         <Button fx:id="defendButton" text="Defend" styleClass="combat-button" 
+                 prefWidth="100.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-shield-alt" iconSize="16" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Defend - Reduce Damage (2)" />
+            </tooltip>
+         </Button>
+         
+         <Button fx:id="itemButton" text="Item" styleClass="combat-button" 
+                 prefWidth="100.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-flask" iconSize="16" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Use Item (5)" />
+            </tooltip>
+         </Button>
+         
+         <Button fx:id="skillButton" text="Skill" styleClass="combat-button" 
+                 prefWidth="100.0" disable="true">
+            <graphic>
+               <FontIcon iconLiteral="fas-magic" iconSize="16" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Use Skill" />
+            </tooltip>
+         </Button>
+         
+         <Button fx:id="runButton" text="Run" styleClass="combat-button" 
+                 prefWidth="100.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-running" iconSize="16" />
+            </graphic>
+            <tooltip>
+               <Tooltip text="Attempt to Run (6)" />
+            </tooltip>
+         </Button>
+         
+         <Separator orientation="VERTICAL" prefHeight="40.0" />
+         
+         <Button fx:id="inventoryButton" text="Inventory" styleClass="button" 
+                 prefWidth="120.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-box" iconSize="16" />
+            </graphic>
+         </Button>
+         
+         <Button fx:id="questsButton" text="Quests" styleClass="button" 
+                 prefWidth="120.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-scroll" iconSize="16" />
+            </graphic>
+         </Button>
+         
+         <Button fx:id="pauseButton" text="Pause" styleClass="button" 
+                 prefWidth="100.0">
+            <graphic>
+               <FontIcon iconLiteral="fas-pause" iconSize="16" />
+            </graphic>
+         </Button>
+      </HBox>
+   </bottom>
+</BorderPane>
+
