@@ -31,6 +31,29 @@
             <version>${javafx.version}</version>
             <classifier>${javafx.platform}</classifier>
         </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>${javafx.version}</version>
+            <classifier>${javafx.platform}</classifier>
+        </dependency>
+        <!-- ControlsFX for notifications and enhanced controls -->
+        <dependency>
+            <groupId>org.controlsfx</groupId>
+            <artifactId>controlsfx</artifactId>
+            <version>11.2.1</version>
+        </dependency>
+        <!-- Ikonli for vector icons -->
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-javafx</artifactId>
+            <version>12.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kordamp.ikonli</groupId>
+            <artifactId>ikonli-fontawesome5-pack</artifactId>
+            <version>12.3.1</version>
+        </dependency>
         <!-- JUnit 5 for testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -120,6 +143,26 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Badass JLink Plugin for creating custom runtime and Windows installer -->
+            <plugin>
+                <groupId>org.beryx</groupId>
+                <artifactId>badass-jlink-plugin</artifactId>
+                <version>2.25.0</version>
+                <configuration>
+                    <imageName>TheEndTheBeginning</imageName>
+                    <launcher>TheEndTheBeginning</launcher>
+                    <jpackage>
+                        <installerName>TheEndTheBeginning-Setup</installerName>
+                        <installerType>exe</installerType>
+                        <winMenu>true</winMenu>
+                        <winShortcut>true</winShortcut>
+                        <icon>${project.basedir}/src/main/resources/icons/iconimage.ico</icon>
+                        <vendor>Abdul Fornah</vendor>
+                        <appVersion>${project.version}</appVersion>
+                    </jpackage>
+                </configuration>
             </plugin>
         </plugins>
     </build>

@@ -13,6 +13,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.util.Duration;
+import org.controlsfx.control.Notifications;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
 import main.model.Item;
 import main.model.Player;
 
@@ -51,6 +54,8 @@ public class MainControllerNew implements Initializable {
     @FXML private Label attackLabel;        // Player attack display
     @FXML private Label levelLabel;         // Player level display
     @FXML private javafx.scene.layout.HBox achievementNotificationArea; // Achievement notification display
+    @FXML private Label achievementNameLabel; // Achievement name label
+    @FXML private Label achievementDescLabel; // Achievement description label
     
     // V4.0.0 - Progress bars for enhanced visual feedback
     @FXML private javafx.scene.control.ProgressBar healthProgressBar;
@@ -62,6 +67,27 @@ public class MainControllerNew implements Initializable {
     @FXML private Label agilityLabel;
     @FXML private Label luckLabel;
     @FXML private Label accuracyLabel;
+    
+    // V4.0.0 - Toolbar and status bar
+    @FXML private Button themeToggleButton;
+    @FXML private Button helpButton;
+    @FXML private Label statusLabel;
+    
+    // V4.0.0 - Action buttons
+    @FXML private Button startButton;
+    @FXML private Button statsButton;
+    @FXML private Button achievementsButton;
+    @FXML private Button resetButton;
+    @FXML private Button submitButton;
+    
+    // V4.0.0 - Combat buttons
+    @FXML private Button normalAttackButton;
+    @FXML private Button defendButton;
+    @FXML private Button heavyAttackButton;
+    @FXML private Button quickAttackButton;
+    @FXML private Button useItemButton;
+    @FXML private Button runButton;
+    @FXML private Button dismissAchievementButton;
     
     // ===== GAME STATE MANAGEMENT =====
     private Player player;                  // Enhanced player system
@@ -119,7 +145,97 @@ public class MainControllerNew implements Initializable {
             inputField.requestFocus();
             // Set up keyboard shortcuts after scene is available
             setupKeyboardShortcuts();
+            // Set up icons for buttons
+            setupButtonIcons();
         });
+    }
+    
+    /**
+     * Set up Ikonli icons for buttons.
+     */
+    private void setupButtonIcons() {
+        // Toolbar buttons
+        if (themeToggleButton != null) {
+            FontIcon themeIcon = new FontIcon(FontAwesomeSolid.PALETTE);
+            themeIcon.setIconSize(14);
+            themeToggleButton.setGraphic(themeIcon);
+            themeToggleButton.setText(" Theme");
+        }
+        
+        if (helpButton != null) {
+            FontIcon helpIcon = new FontIcon(FontAwesomeSolid.QUESTION_CIRCLE);
+            helpIcon.setIconSize(14);
+            helpButton.setGraphic(helpIcon);
+            helpButton.setText(" Help");
+        }
+        
+        // Main action buttons - add icons alongside emoji text
+        if (startButton != null) {
+            FontIcon startIcon = new FontIcon(FontAwesomeSolid.PLAY);
+            startIcon.setIconSize(16);
+            startButton.setGraphic(startIcon);
+        }
+        
+        if (statsButton != null) {
+            FontIcon statsIcon = new FontIcon(FontAwesomeSolid.CHART_BAR);
+            statsIcon.setIconSize(16);
+            statsButton.setGraphic(statsIcon);
+        }
+        
+        if (achievementsButton != null) {
+            FontIcon achievementIcon = new FontIcon(FontAwesomeSolid.TROPHY);
+            achievementIcon.setIconSize(16);
+            achievementsButton.setGraphic(achievementIcon);
+        }
+        
+        if (resetButton != null) {
+            FontIcon resetIcon = new FontIcon(FontAwesomeSolid.REDO);
+            resetIcon.setIconSize(16);
+            resetButton.setGraphic(resetIcon);
+        }
+        
+        // Combat buttons
+        if (normalAttackButton != null) {
+            FontIcon attackIcon = new FontIcon(FontAwesomeSolid.HAMMER);
+            attackIcon.setIconSize(14);
+            normalAttackButton.setGraphic(attackIcon);
+        }
+        
+        if (defendButton != null) {
+            FontIcon defendIcon = new FontIcon(FontAwesomeSolid.SHIELD_ALT);
+            defendIcon.setIconSize(14);
+            defendButton.setGraphic(defendIcon);
+        }
+        
+        if (heavyAttackButton != null) {
+            FontIcon heavyIcon = new FontIcon(FontAwesomeSolid.BOLT);
+            heavyIcon.setIconSize(14);
+            heavyAttackButton.setGraphic(heavyIcon);
+        }
+        
+        if (quickAttackButton != null) {
+            FontIcon quickIcon = new FontIcon(FontAwesomeSolid.BULLSEYE);
+            quickIcon.setIconSize(14);
+            quickAttackButton.setGraphic(quickIcon);
+        }
+        
+        if (useItemButton != null) {
+            FontIcon itemIcon = new FontIcon(FontAwesomeSolid.FLASK);
+            itemIcon.setIconSize(14);
+            useItemButton.setGraphic(itemIcon);
+        }
+        
+        if (runButton != null) {
+            FontIcon runIcon = new FontIcon(FontAwesomeSolid.RUNNING);
+            runIcon.setIconSize(14);
+            runButton.setGraphic(runIcon);
+        }
+        
+        if (submitButton != null) {
+            FontIcon submitIcon = new FontIcon(FontAwesomeSolid.ARROW_RIGHT);
+            submitIcon.setIconSize(14);
+            submitButton.setGraphic(submitIcon);
+        }
     }
     
     /**
@@ -189,9 +305,17 @@ public class MainControllerNew implements Initializable {
     private void quickSave() {
         appendToGameText("\n💾 Quick saving...\n");
         syncPlayerToGameState();
-        SaveManager.saveGame(player, gameState.getLevel());
-        appendToGameText("✅ Game saved successfully!\n\n");
-        audioManager.playUISound("button");
+        boolean success = SaveManager.saveGame(player, gameState.getLevel());
+        if (success) {
+            appendToGameText("✅ Game saved successfully!\n\n");
+            showNotification("Game Saved", "Your progress has been saved successfully.", "INFORMATION");
+            updateStatus("Game saved");
+        } else {
+            appendToGameText("❌ Failed to save game.\n\n");
+            showNotification("Save Failed", "Could not save game. Please try again.", "ERROR");
+            updateStatus("Save failed");
+        }
+        audioManager.playUISound("click");
     }
     
     /**
@@ -199,13 +323,22 @@ public class MainControllerNew implements Initializable {
      */
     private void quickLoad() {
         appendToGameText("\n📂 Quick loading...\n");
-        loadSavedGame();
+        if (SaveManager.saveExists()) {
+            loadSavedGame();
+            showNotification("Game Loaded", "Your saved game has been loaded.", "INFORMATION");
+            updateStatus("Game loaded");
+        } else {
+            appendToGameText("❌ No save file found.\n\n");
+            showNotification("Load Failed", "No save file found.", "WARNING");
+            updateStatus("No save file");
+        }
     }
     
     /**
-     * Show help and keyboard shortcuts (F1 shortcut).
+     * Show help and keyboard shortcuts (F1 shortcut and toolbar button).
      */
-    private void showHelp() {
+    @FXML
+    public void showHelp() {
         appendToGameText("\n╔═══════════════════════════════════════════════════════╗\n");
         appendToGameText("║              📖 HELP & KEYBOARD SHORTCUTS             ║\n");
         appendToGameText("╠═══════════════════════════════════════════════════════╣\n");
@@ -227,6 +360,58 @@ public class MainControllerNew implements Initializable {
         appendToGameText("║  • use <item> ........ Use item by name              ║\n");
         appendToGameText("║                                                       ║\n");
         appendToGameText("╚═══════════════════════════════════════════════════════╝\n\n");
+        updateStatus("Help displayed");
+    }
+    
+    /**
+     * Toggle between normal and high-contrast theme.
+     */
+    @FXML
+    public void toggleTheme() {
+        settings.highContrast = !settings.highContrast;
+        settings.save();
+        applySettings();
+        String themeName = settings.highContrast ? "High Contrast" : "Normal";
+        showNotification("Theme Changed", "Switched to " + themeName + " theme.", "INFORMATION");
+        updateStatus("Theme: " + themeName);
+    }
+    
+    /**
+     * Show a notification using ControlsFX.
+     */
+    private void showNotification(String title, String text, String type) {
+        Platform.runLater(() -> {
+            Notifications notification = Notifications.create()
+                .title(title)
+                .text(text)
+                .hideAfter(Duration.seconds(3));
+            
+            switch (type.toUpperCase()) {
+                case "INFORMATION":
+                    notification.showInformation();
+                    break;
+                case "WARNING":
+                    notification.showWarning();
+                    break;
+                case "ERROR":
+                    notification.showError();
+                    break;
+                default:
+                    notification.show();
+                    break;
+            }
+        });
+    }
+    
+    /**
+     * Update status bar text.
+     */
+    private void updateStatus(String status) {
+        Platform.runLater(() -> {
+            if (statusLabel != null) {
+                statusLabel.setText(status);
+            }
+        });
     }
     
     
@@ -234,6 +419,11 @@ public class MainControllerNew implements Initializable {
      * Applies current settings to the game UI.
      */
     private void applySettings() {
+        // Guard against null scene (may not be initialized yet)
+        if (gameTextArea.getScene() == null) {
+            return;
+        }
+        
         if (settings.highContrast) {
             try {
                 gameTextArea.getScene().getStylesheets().clear();
@@ -325,7 +515,7 @@ public class MainControllerNew implements Initializable {
         }
         
         // Play dismissal sound
-        audioManager.playUISound("button");
+        audioManager.playUISound("click");
         
         // Return focus to input field
         Platform.runLater(() -> inputField.requestFocus());
@@ -695,6 +885,25 @@ public class MainControllerNew implements Initializable {
                 saveData.monstersDefeated
             );
             
+            // Restore mana if present
+            if (saveData.mana > 0) {
+                player.setMana(saveData.mana);
+            }
+            if (saveData.maxMana > 0) {
+                player.setMaxMana(saveData.maxMana);
+            }
+            
+            // Restore equipment if present
+            if (saveData.equippedWeapon != null && !saveData.equippedWeapon.isEmpty()) {
+                player.equipWeapon(saveData.equippedWeapon);
+            }
+            if (saveData.equippedArmor != null && !saveData.equippedArmor.isEmpty()) {
+                player.equipArmor(saveData.equippedArmor);
+            }
+            if (saveData.equippedAccessory != null && !saveData.equippedAccessory.isEmpty()) {
+                player.equipAccessory(saveData.equippedAccessory);
+            }
+            
             player.setDungeonLevel(saveData.dungeonLevel);
             
             // Sync to game state
@@ -1011,9 +1220,35 @@ public class MainControllerNew implements Initializable {
             appendToGameText("📝 " + playerAttackResult.description + "\n");
         }
         
-        // Check if monster is defeated
+        // Check if monster is defeated after player attack
         if (!currentMonster.isAlive()) {
-            executeCombatRound(); // Re-run to handle victory
+            // Handle victory - use early return pattern
+            appendToGameText("🏆 Victory! The " + currentMonster.getName() + " has been defeated!\n");
+            audioManager.playSound("monster_death");
+            
+            // Reward experience and potential level up
+            int expReward = 30 + (gameState.getLevel() * 10);
+            boolean leveledUp = player.gainExperience(expReward);
+            appendToGameText("⭐ You gained " + expReward + " experience!\n");
+            
+            if (leveledUp) {
+                appendToGameText("🎉 LEVEL UP! You grow stronger!\n");
+                audioManager.playUISound("level_up");
+                achievementManager.checkLevelAchievements(player);
+            }
+            
+            // Record kill for achievements - V4.0.0 enhanced
+            player.recordMonsterKill();
+            achievementManager.checkCombatAchievements(player, currentMonster, true, false, false, 0);
+            achievementManager.checkCollectionAchievements(player);
+            
+            // Advance to next level
+            gameState.nextLevel();
+            player.setDungeonLevel(gameState.getLevel());
+            
+            syncPlayerToGameState();
+            updateUI();
+            continueGameplay();
             return;
         }
         
@@ -1047,9 +1282,13 @@ public class MainControllerNew implements Initializable {
         syncPlayerToGameState();
         updateUI();
         
-        // Check if player is defeated
+        // Check if player is defeated after monster attack
         if (!player.isAlive()) {
-            executeCombatRound(); // Re-run to handle defeat
+            // Handle defeat - use early return pattern
+            appendToGameText("💀 You have been defeated...\n");
+            audioManager.setGameStateMusic("game_over");
+            showCredits();
+            isGameRunning = false;
             return;
         }
         
@@ -1344,18 +1583,48 @@ public class MainControllerNew implements Initializable {
     }
     
     /**
-     * V4.0.0 - Display achievement notification in the game text area
+     * V4.0.0 - Display achievement notification using the UI notification area
      * 
      * @param achievement The unlocked achievement
      */
     private void showAchievementNotification(Achievement achievement) {
-        showGameText("\n" + "🎉".repeat(20));
-        showGameText("★ ACHIEVEMENT UNLOCKED! ★");
-        showGameText(achievement.getIcon() + " " + achievement.getName());
-        showGameText("\"" + achievement.getDescription() + "\"");
-        showGameText("[" + achievement.getRarity().getName() + " - " + 
-                    achievement.getRarity().getPointValue() + " points]");
-        showGameText("🎉".repeat(20) + "\n");
+        // Show ControlsFX notification as primary method
+        showNotification(
+            "🏆 Achievement Unlocked!",
+            achievement.getIcon() + " " + achievement.getName() + "\n" + achievement.getDescription(),
+            "INFORMATION"
+        );
+        
+        if (achievementNotificationArea != null && achievementNameLabel != null && achievementDescLabel != null) {
+            // Also show in-game notification area
+            achievementNameLabel.setText(achievement.getIcon() + " " + achievement.getName());
+            achievementDescLabel.setText("\"" + achievement.getDescription() + "\" - " + 
+                                        achievement.getRarity().getName() + " (" + 
+                                        achievement.getRarity().getPointValue() + " points)");
+            
+            // Show notification area
+            achievementNotificationArea.setVisible(true);
+            achievementNotificationArea.setManaged(true);
+            
+            // Auto-hide after 5 seconds
+            PauseTransition autoHide = new PauseTransition(Duration.seconds(5));
+            autoHide.setOnFinished(e -> {
+                if (achievementNotificationArea != null) {
+                    achievementNotificationArea.setVisible(false);
+                    achievementNotificationArea.setManaged(false);
+                }
+            });
+            autoHide.play();
+        } else {
+            // Fallback to text display if UI components not available
+            appendToGameText("\n🎉 ACHIEVEMENT UNLOCKED! 🎉\n");
+            appendToGameText(achievement.getIcon() + " " + achievement.getName() + "\n");
+            appendToGameText("\"" + achievement.getDescription() + "\"\n");
+        }
+        
+        // Play achievement sound
+        audioManager.playUISound("achievement");
+        updateStatus("Achievement: " + achievement.getName());
     }
     
     /**
@@ -1399,7 +1668,7 @@ public class MainControllerNew implements Initializable {
         appendToGameText("1. 🗡️ Attack - Standard attack\n");
         appendToGameText("2. 🛡️ Defend - Reduce incoming damage\n");
         appendToGameText("3. ⚡ Heavy Attack - High damage but uses mana\n");
-        appendToGameText("4. 🏹 Ranged Attack - Attack from distance\n");
+        appendToGameText("4. 🏹 Quick Attack - Fast but weaker attack\n");
         appendToGameText("5. 🧪 Use Item - Use healing potion or other items\n");
         appendToGameText("6. 🏃 Run - Attempt to flee\n");
         appendToGameText("Choose your action: ");
@@ -1469,8 +1738,11 @@ public class MainControllerNew implements Initializable {
             case "heavy":
                 if (player.getMana() >= 10) {
                     showCombatAnimation("heavy_attack", true);
-                    // Consume mana for heavy attack (direct access to field)
+                    // Consume mana for heavy attack
+                    player.setMana(player.getMana() - 10);
                     appendToGameText("💙 You channel your mana for a powerful attack! (-10 mana)\n");
+                    syncPlayerToGameState();
+                    updateUI();
                     performPlayerAttack(CombatEngine.AttackType.HEAVY_ATTACK);
                 } else {
                     appendToGameText("❌ Not enough mana for heavy attack! (Need 10 mana)\n");

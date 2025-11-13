@@ -70,6 +70,14 @@ public class CombatEngine {
     public static CombatResult playerAttackMonster(Player player, Monster monster, AttackType attackType) {
         CombatResult result = new CombatResult();
         
+        // Handle defensive stance - no attack, just defensive preparation
+        if (attackType == AttackType.DEFENSIVE_STANCE) {
+            result.result = AttackResult.BLOCKED;
+            result.damage = 0;
+            result.description = "🛡️ You brace yourself and reduce incoming damage!";
+            return result;
+        }
+        
         // Calculate base accuracy (85% base + agility bonus)
         double accuracy = 0.85 + (player.getAgility() * 0.002);
         

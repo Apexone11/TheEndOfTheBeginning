@@ -620,7 +620,7 @@ public class Player {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < inventory.size(); i++) {
             Item item = inventory.get(i);
-            sb.append((i + 1)).append(". ").append(item.getDisplayName()).append("\\n");
+            sb.append((i + 1)).append(". ").append(item.getDisplayName()).append("\n");
         }
         return sb.toString();
     }

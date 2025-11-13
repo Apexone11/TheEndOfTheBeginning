@@ -49,3 +49,5 @@ node_modules/
 *.temp
 tmp/
 temp/
+
+.fake

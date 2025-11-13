@@ -1,7 +1,10 @@
 package gameproject.audio;
 
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 
 /**
  * Advanced Audio System for "The End The Beginning" v4.0.0
@@ -36,6 +39,7 @@ public class AudioManager {
     // Current music track
     private String currentTrack;
     private boolean isPlayingMusic;
+    private MediaPlayer currentMediaPlayer;
     
     // Sound effect categories
     public enum SoundCategory {
@@ -137,7 +141,7 @@ public class AudioManager {
     }
     
     /**
-     * Play background music (framework implementation)
+     * Play background music using JavaFX Media API
      */
     public void playMusic(String musicName) {
         playMusic(musicName, true);
@@ -147,7 +151,7 @@ public class AudioManager {
         if (!musicEnabled) return;
         
         // Don't restart the same track
-        if (musicName.equals(currentTrack) && isPlayingMusic) {
+        if (musicName.equals(currentTrack) && isPlayingMusic && currentMediaPlayer != null) {
             return;
         }
         
@@ -158,25 +162,63 @@ public class AudioManager {
         }
         
         // Stop current music
-        if (isPlayingMusic) {
+        if (isPlayingMusic && currentMediaPlayer != null) {
             stopMusic();
         }
         
-        // Start new music
-        currentTrack = musicName;
-        isPlayingMusic = true;
-        
-        System.out.println("[AUDIO] Playing music: " + musicName + 
-                         " (loop: " + loop + ", volume: " + String.format("%.2f", musicVolume) + 
-                         ") -> " + musicPath);
+        try {
+            // Load media from resource
+            URL mediaUrl = getClass().getResource(musicPath);
+            if (mediaUrl == null) {
+                System.out.println("[AUDIO] Music file not found at: " + musicPath);
+                return;
+            }
+            
+            Media media = new Media(mediaUrl.toExternalForm());
+            currentMediaPlayer = new MediaPlayer(media);
+            
+            // Set volume and looping
+            currentMediaPlayer.setVolume(musicVolume);
+            if (loop) {
+                currentMediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
+            } else {
+                currentMediaPlayer.setCycleCount(1);
+            }
+            
+            // Handle playback errors gracefully
+            currentMediaPlayer.setOnError(() -> {
+                System.err.println("[AUDIO] Error playing music: " + musicName + " - " + 
+                                 currentMediaPlayer.getError().getMessage());
+                isPlayingMusic = false;
+                currentTrack = null;
+                currentMediaPlayer = null;
+            });
+            
+            // Start playback
+            currentMediaPlayer.play();
+            currentTrack = musicName;
+            isPlayingMusic = true;
+            
+            System.out.println("[AUDIO] Playing music: " + musicName + 
+                             " (loop: " + loop + ", volume: " + String.format("%.2f", musicVolume) + 
+                             ") -> " + musicPath);
+        } catch (Exception e) {
+            System.err.println("[AUDIO] Failed to play music: " + musicName + " - " + e.getMessage());
+            isPlayingMusic = false;
+            currentTrack = null;
+            currentMediaPlayer = null;
+        }
     }
     
     /**
      * Stop current music
      */
     public void stopMusic() {
-        if (isPlayingMusic) {
+        if (isPlayingMusic && currentMediaPlayer != null) {
             System.out.println("[AUDIO] Stopping music: " + currentTrack);
+            currentMediaPlayer.stop();
+            currentMediaPlayer.dispose();
+            currentMediaPlayer = null;
             isPlayingMusic = false;
             currentTrack = null;
         }
@@ -317,8 +359,9 @@ public class AudioManager {
         System.out.println("[AUDIO] Music volume set to: " + String.format("%.2f", this.musicVolume));
         
         // Apply volume change to current music if playing
-        if (isPlayingMusic && currentTrack != null) {
-            System.out.println("[AUDIO] Applying volume change to current track: " + currentTrack);
+        if (isPlayingMusic && currentMediaPlayer != null) {
+            currentMediaPlayer.setVolume(musicVolume);
+            System.out.println("[AUDIO] Applied volume change to current track: " + currentTrack);
         }
     }
     
@@ -334,7 +377,7 @@ public class AudioManager {
      * Cleanup resources
      */
     public void dispose() {
-        if (isPlayingMusic) {
+        if (isPlayingMusic && currentMediaPlayer != null) {
             stopMusic();
         }
         

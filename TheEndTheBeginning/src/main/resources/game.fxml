@@ -11,6 +11,23 @@
       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
    </padding>
    
+   <!-- Toolbar Row -->
+   <HBox spacing="10.0" alignment="CENTER_RIGHT" styleClass="toolbar">
+      <VBox.margin>
+         <Insets bottom="10.0" />
+      </VBox.margin>
+      <Button fx:id="themeToggleButton" onAction="#toggleTheme" text="Theme" styleClass="toolbar-button" prefWidth="80.0">
+         <tooltip>
+            <Tooltip text="Toggle between normal and high-contrast theme" />
+         </tooltip>
+      </Button>
+      <Button fx:id="helpButton" onAction="#showHelp" text="Help" styleClass="toolbar-button" prefWidth="80.0">
+         <tooltip>
+            <Tooltip text="Show keyboard shortcuts and help" />
+         </tooltip>
+      </Button>
+   </HBox>
+   
    <!-- Game Title -->
    <Label text="⚔ The End The Beginning ⚔" textAlignment="CENTER" styleClass="title-label">
       <font>
@@ -193,14 +210,24 @@
       </Button>
    </HBox>
    
+   <!-- Status Bar -->
+   <HBox spacing="10.0" alignment="CENTER_LEFT" styleClass="status-bar">
+      <VBox.margin>
+         <Insets top="10.0" />
+      </VBox.margin>
+      <Label fx:id="statusLabel" text="Ready" style="-fx-text-fill: #888888; -fx-font-size: 11px;" />
+      <Region HBox.hgrow="ALWAYS" />
+      <Label text="v4.0.0" style="-fx-text-fill: #888888; -fx-font-size: 11px; -fx-font-style: italic;" />
+   </HBox>
+   
    <!-- Footer with Version Info -->
    <HBox alignment="CENTER" spacing="10.0">
       <VBox.margin>
-         <Insets top="20.0" />
+         <Insets top="10.0" />
       </VBox.margin>
       
       <Separator prefWidth="100.0" />
-      <Label text="v4.0.0 - Advanced Combat Edition | Created by Abdul Fornah | JavaFX RPG" 
+      <Label text="Advanced Combat Edition | Created by Abdul Fornah | JavaFX RPG" 
              style="-fx-text-fill: #888888; -fx-font-size: 11px; -fx-font-style: italic;" />
       <Separator prefWidth="100.0" />
    </HBox>

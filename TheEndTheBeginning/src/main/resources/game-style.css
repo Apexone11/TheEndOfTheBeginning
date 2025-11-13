@@ -571,6 +571,69 @@ HBox {
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 8, 0.5, 0, 3);
 }
 
+/* ===== TOOLBAR STYLES ===== */
+.toolbar {
+    -fx-background-color: rgba(42, 42, 42, 0.8);
+    -fx-background-radius: 5px;
+    -fx-padding: 5px 10px;
+    -fx-spacing: 10px;
+}
+
+.toolbar-button {
+    -fx-background-color: linear-gradient(to bottom, #4a4a4a, #2a2a2a);
+    -fx-border-color: #666666;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-text-fill: -fx-text-primary;
+    -fx-font-size: 11px;
+    -fx-padding: 5px 10px;
+    -fx-cursor: hand;
+}
+
+.toolbar-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #5a5a5a, #3a3a3a);
+    -fx-border-color: -fx-accent;
+}
+
+.toolbar-button:pressed {
+    -fx-background-color: linear-gradient(to bottom, #2a2a2a, #1a1a1a);
+}
+
+/* ===== STATUS BAR STYLES ===== */
+.status-bar {
+    -fx-background-color: rgba(26, 26, 26, 0.6);
+    -fx-background-radius: 3px;
+    -fx-padding: 5px 10px;
+    -fx-border-color: rgba(102, 102, 102, 0.3);
+    -fx-border-width: 1px 0 0 0;
+}
+
+/* ===== NOTIFICATION ACCENT STYLES ===== */
+.notification-success {
+    -fx-background-color: rgba(50, 205, 50, 0.2);
+    -fx-border-color: #32cd32;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.notification-info {
+    -fx-background-color: rgba(100, 149, 237, 0.2);
+    -fx-border-color: #6495ed;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.notification-warning {
+    -fx-background-color: rgba(255, 215, 0, 0.2);
+    -fx-border-color: #ffd700;
+    -fx-border-width: 1px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
 /* ===== PRINT STYLES ===== */
 @media print {
     .root {

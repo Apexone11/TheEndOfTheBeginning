@@ -6,7 +6,6 @@ import java.nio.file.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Enhanced save/load system for player progress with v4.0.0 features.
@@ -17,14 +16,34 @@ import java.util.stream.Collectors;
  */
 public class SaveManager {
     
-    private static final String SAVE_DIR = System.getProperty("user.home") + "/.the-end-the-beginning/saves";
-    private static final String SAVE_FILE = SAVE_DIR + "/savegame.txt";
-    private static final String AUTOSAVE_FILE = SAVE_DIR + "/autosave.txt";
-    private static final String BACKUP_DIR = SAVE_DIR + "/backups";
     private static final int MAX_BACKUP_FILES = 5;
     
     // Save format version for compatibility
     private static final String SAVE_VERSION = "4.0.0";
+    
+    /**
+     * Gets the base save directory, respecting theetb.save.dir system property override.
+     * Defaults to user.home/.the-end-the-beginning/saves if not set.
+     */
+    private static Path getSaveDirectory() {
+        String overrideDir = System.getProperty("theetb.save.dir");
+        if (overrideDir != null && !overrideDir.isEmpty()) {
+            return Paths.get(overrideDir);
+        }
+        return Paths.get(System.getProperty("user.home"), ".the-end-the-beginning", "saves");
+    }
+    
+    private static Path getSaveFile() {
+        return getSaveDirectory().resolve("savegame.txt");
+    }
+    
+    private static Path getAutosaveFile() {
+        return getSaveDirectory().resolve("autosave.txt");
+    }
+    
+    private static Path getBackupDirectory() {
+        return getSaveDirectory().resolve("backups");
+    }
     
     /**
      * Enhanced save method that handles all v4.0.0 features
@@ -37,8 +56,8 @@ public class SaveManager {
     public static boolean saveGame(Player player, int dungeonLevel, GameSaveData gameData) {
         try {
             // Create save directory and backup directory
-            Path saveDir = Paths.get(SAVE_DIR);
-            Path backupDir = Paths.get(BACKUP_DIR);
+            Path saveDir = getSaveDirectory();
+            Path backupDir = getBackupDirectory();
             Files.createDirectories(saveDir);
             Files.createDirectories(backupDir);
             
@@ -77,9 +96,9 @@ public class SaveManager {
             
             // Equipment
             saveData.append("\n# EQUIPMENT\n");
-            saveData.append("WEAPON=").append(player.getEquippedWeapon() != null ? player.getEquippedWeapon() : "").append("\n");
-            saveData.append("ARMOR=").append(player.getEquippedArmor() != null ? player.getEquippedArmor() : "").append("\n");
-            saveData.append("ACCESSORY=").append(player.getEquippedAccessory() != null ? player.getEquippedAccessory() : "").append("\n");
+            saveData.append("WEAPON=").append(player.getEquippedWeapon() != null ? player.getEquippedWeapon().getName() : "").append("\n");
+            saveData.append("ARMOR=").append(player.getEquippedArmor() != null ? player.getEquippedArmor().getName() : "").append("\n");
+            saveData.append("ACCESSORY=").append(player.getEquippedAccessory() != null ? player.getEquippedAccessory().getName() : "").append("\n");
             
             // Game progress
             saveData.append("\n# GAME PROGRESS\n");
@@ -125,7 +144,7 @@ public class SaveManager {
             saveData.append("ITEMS_USED=").append(gameData.itemsUsed).append("\n");
             
             // Write to file using try-with-resources
-            Path savePath = Paths.get(SAVE_FILE);
+            Path savePath = getSaveFile();
             try (BufferedWriter writer = Files.newBufferedWriter(savePath)) {
                 writer.write(saveData.toString());
             }
@@ -153,11 +172,12 @@ public class SaveManager {
      */
     public static SaveData loadGame() {
         try {
-            if (!Files.exists(Paths.get(SAVE_FILE))) {
+            Path saveFile = getSaveFile();
+            if (!Files.exists(saveFile)) {
                 return null; // No save file exists
             }
             
-            String content = new String(Files.readAllBytes(Paths.get(SAVE_FILE)));
+            String content = new String(Files.readAllBytes(saveFile));
             SaveData data = new SaveData();
             
             // Parse the save file
@@ -172,19 +192,71 @@ public class SaveManager {
                 String key = parts[0].trim();
                 String value = parts[1].trim();
                 
-                switch (key) {
-                    case "NAME" -> data.name = value;
-                    case "CLASS" -> data.playerClass = value;
-                    case "LEVEL" -> data.level = Integer.parseInt(value);
-                    case "EXPERIENCE" -> data.experience = Integer.parseInt(value);
-                    case "HEALTH" -> data.health = Integer.parseInt(value);
-                    case "MAX_HEALTH" -> data.maxHealth = Integer.parseInt(value);
-                    case "ATTACK" -> data.attack = Integer.parseInt(value);
-                    case "DEFENSE" -> data.defense = Integer.parseInt(value);
-                    case "MAGIC" -> data.magic = Integer.parseInt(value);
-                    case "DUNGEON_LEVEL" -> data.dungeonLevel = Integer.parseInt(value);
-                    case "ROOMS_EXPLORED" -> data.roomsExplored = Integer.parseInt(value);
-                    case "MONSTERS_DEFEATED" -> data.monstersDefeated = Integer.parseInt(value);
+                try {
+                    switch (key) {
+                        case "NAME" -> data.name = value;
+                        case "CLASS" -> data.playerClass = value;
+                        case "LEVEL" -> data.level = Integer.parseInt(value);
+                        case "EXPERIENCE" -> data.experience = Integer.parseInt(value);
+                        case "HEALTH" -> data.health = Integer.parseInt(value);
+                        case "MAX_HEALTH" -> data.maxHealth = Integer.parseInt(value);
+                        case "MANA" -> data.mana = Integer.parseInt(value);
+                        case "MAX_MANA" -> data.maxMana = Integer.parseInt(value);
+                        case "ATTACK" -> data.attack = Integer.parseInt(value);
+                        case "DEFENSE" -> data.defense = Integer.parseInt(value);
+                        case "MAGIC" -> data.magic = Integer.parseInt(value);
+                        case "AGILITY" -> data.agility = Integer.parseInt(value);
+                        case "LUCK" -> data.luck = Integer.parseInt(value);
+                        case "ACCURACY" -> data.accuracy = Integer.parseInt(value);
+                        case "WEAPON" -> data.equippedWeapon = value.isEmpty() ? null : value;
+                        case "ARMOR" -> data.equippedArmor = value.isEmpty() ? null : value;
+                        case "ACCESSORY" -> data.equippedAccessory = value.isEmpty() ? null : value;
+                        case "DUNGEON_LEVEL" -> data.dungeonLevel = Integer.parseInt(value);
+                        case "ROOMS_EXPLORED" -> data.roomsExplored = Integer.parseInt(value);
+                        case "MONSTERS_DEFEATED" -> data.monstersDefeated = Integer.parseInt(value);
+                        case "PLAY_TIME" -> data.playTimeMinutes = Integer.parseInt(value);
+                        case "MASTER_VOLUME" -> data.masterVolume = Float.parseFloat(value);
+                        case "MUSIC_VOLUME" -> data.musicVolume = Float.parseFloat(value);
+                        case "SFX_VOLUME" -> data.sfxVolume = Float.parseFloat(value);
+                        case "AUDIO_ENABLED" -> data.audioEnabled = Boolean.parseBoolean(value);
+                        case "DIFFICULTY" -> data.difficulty = value;
+                        case "THEME" -> data.theme = value;
+                        case "AUTO_SAVE" -> data.autoSaveEnabled = Boolean.parseBoolean(value);
+                        case "TOTAL_DAMAGE_DEALT" -> data.totalDamageDealt = Long.parseLong(value);
+                        case "TOTAL_DAMAGE_TAKEN" -> data.totalDamageTaken = Long.parseLong(value);
+                        case "CRITICAL_HITS" -> data.criticalHits = Integer.parseInt(value);
+                        case "SPELLS_CAST" -> data.spellsCast = Integer.parseInt(value);
+                        case "ITEMS_USED" -> data.itemsUsed = Integer.parseInt(value);
+                        case "UNLOCKED_ACHIEVEMENTS" -> {
+                            if (!value.isEmpty()) {
+                                data.unlockedAchievements = Arrays.asList(value.split(","));
+                            }
+                        }
+                        case "COMPLETED_QUESTS" -> {
+                            if (!value.isEmpty()) {
+                                data.completedQuests = Arrays.asList(value.split(","));
+                            }
+                        }
+                        case "ACTIVE_QUESTS" -> {
+                            if (!value.isEmpty()) {
+                                data.activeQuests = Arrays.asList(value.split(","));
+                            }
+                        }
+                        case "ACHIEVEMENT_PROGRESS" -> {
+                            if (!value.isEmpty()) {
+                                data.achievementProgress = deserializeMap(value);
+                            }
+                        }
+                        case "QUEST_PROGRESS" -> {
+                            if (!value.isEmpty()) {
+                                data.questProgress = deserializeMap(value);
+                            }
+                        }
+                        case "SAVE_VERSION" -> data.saveVersion = value;
+                    }
+                } catch (NumberFormatException e) {
+                    // Skip invalid numeric values, continue parsing
+                    System.err.println("Warning: Invalid numeric value for key " + key + ": " + value);
                 }
             }
             
@@ -202,7 +274,7 @@ public class SaveManager {
      * @return true if a save file exists, false otherwise
      */
     public static boolean saveExists() {
-        return Files.exists(Paths.get(SAVE_FILE));
+        return Files.exists(getSaveFile());
     }
     
     /**
@@ -212,8 +284,9 @@ public class SaveManager {
      */
     public static boolean deleteSave() {
         try {
-            if (saveExists()) {
-                Files.delete(Paths.get(SAVE_FILE));
+            Path saveFile = getSaveFile();
+            if (Files.exists(saveFile)) {
+                Files.delete(saveFile);
                 return true;
             }
             return false;
@@ -241,10 +314,13 @@ public class SaveManager {
      */
     private static void createBackup() {
         try {
-            if (Files.exists(Paths.get(SAVE_FILE))) {
+            Path saveFile = getSaveFile();
+            if (Files.exists(saveFile)) {
                 String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-                String backupFileName = BACKUP_DIR + "/savegame_backup_" + timestamp + ".txt";
-                Files.copy(Paths.get(SAVE_FILE), Paths.get(backupFileName));
+                Path backupDir = getBackupDirectory();
+                Files.createDirectories(backupDir);
+                Path backupFile = backupDir.resolve("savegame_backup_" + timestamp + ".txt");
+                Files.copy(saveFile, backupFile);
                 
                 // Clean up old backups
                 cleanupOldBackups();
@@ -259,7 +335,7 @@ public class SaveManager {
      */
     private static void cleanupOldBackups() {
         try {
-            Path backupDir = Paths.get(BACKUP_DIR);
+            Path backupDir = getBackupDirectory();
             if (!Files.exists(backupDir)) return;
             
             List<Path> backupFiles = Files.list(backupDir)
@@ -308,7 +384,7 @@ public class SaveManager {
      */
     public static boolean autoSave(Player player, int dungeonLevel, GameSaveData gameData) {
         try {
-            Path autoSavePath = Paths.get(AUTOSAVE_FILE);
+            Path autoSavePath = getAutosaveFile();
             String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
             
             StringBuilder saveData = new StringBuilder();

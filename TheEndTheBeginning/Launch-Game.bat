@@ -12,7 +12,7 @@ echo.
 
 cd /d "%~dp0"
 
-mvn javafx:run
+.\mvnw.cmd javafx:run
 
 echo.
 if errorlevel 1 (
@@ -20,7 +20,7 @@ if errorlevel 1 (
     echo.
     echo Trying alternative method...
     echo.
-    mvn compile javafx:run
+    .\mvnw.cmd compile javafx:run
     if errorlevel 1 (
         echo.
         echo Still failed. Please check if Java and Maven are properly installed.
